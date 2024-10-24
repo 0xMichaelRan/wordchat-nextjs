@@ -23,12 +23,6 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 
 export default function WordPage() {
-  const [showDetails, setShowDetails] = useState(false)
-  const [showHistory, setShowHistory] = useState(false)
-  const [newWord, setNewWord] = useState("")
-  const [newDefinition, setNewDefinition] = useState("")
-  const [newDetails, setNewDetails] = useState("")
-
   // Placeholder data
   const word = "Serendipity"
   const definition = "The occurrence and development of events by chance in a happy or beneficial way."
@@ -44,10 +38,20 @@ export default function WordPage() {
     { word: "Fortuity", correlation: 0.2 }
   ];
   const definitionHistory = [
-    "The faculty of making fortunate discoveries by accident.",
-    "The phenomenon of finding valuable things not sought for.",
-    "A happy accident or pleasant surprise; a fortunate mistake."
+    { text: "The faculty of making fortunate discoveries by accident.", date: "2023-06-01" },
+    { text: "The phenomenon of finding valuable things not sought for.", date: "2023-06-15" },
+    { text: "A happy accident or pleasant surprise; a fortunate mistake.", date: "2023-06-30" }
   ]
+
+  const [showDetails, setShowDetails] = useState(false)
+  const [showHistory, setShowHistory] = useState(false)
+  const [newWord, setNewWord] = useState("")
+  const [newDefinition, setNewDefinition] = useState("")
+  const [newDetails, setNewDetails] = useState("")
+  const [isEditingDefinition, setIsEditingDefinition] = useState(false)
+  const [isEditingDetails, setIsEditingDetails] = useState(false)
+  const [editedDefinition, setEditedDefinition] = useState(definition)
+  const [editedDetails, setEditedDetails] = useState(details)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -59,12 +63,33 @@ export default function WordPage() {
     setNewDetails("")
   }
 
+  const handleEditDefinition = () => {
+    setIsEditingDefinition(true)
+  }
+
+  const handleSaveDefinition = () => {
+    setIsEditingDefinition(false)
+    // Here you would typically update your app's state or make an API call
+    console.log("Saving new definition:", editedDefinition)
+  }
+
+  const handleEditDetails = () => {
+    setIsEditingDetails(true)
+  }
+
+  const handleSaveDetails = () => {
+    setIsEditingDetails(false)
+    // Here you would typically update your app's state or make an API call
+    console.log("Saving new details:", editedDetails)
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <nav className="bg-primary text-primary-foreground p-4">
         <div className="container mx-auto flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold">WordChat</Link>
+          <Link href="/" className="text-2xl font-bold">Word</Link>
           <div className="flex gap-4">
+            <Link href="/?word=jfkd3" className="hover:underline">Word</Link>
             <Link href="/chat" className="hover:underline">Chat</Link>
             <Link href="/config" className="hover:underline">Config</Link>
           </div>
@@ -73,15 +98,31 @@ export default function WordPage() {
 
       <main className="flex-grow container mx-auto px-4 py-8 max-w-2xl">
         <Card className="mb-6">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-3xl font-bold">{word}</CardTitle>
-            <Button variant="outline" size="icon">
-              <MessageSquare className="h-4 w-4" />
-              <span className="sr-only">Chat about this word</span>
-            </Button>
+          <CardHeader className="flex flex-col items-start">
+            <div className="flex items-center justify-between w-full">
+              <CardTitle className="text-3xl font-bold">{word}</CardTitle>
+              <Button variant="outline" size="icon" asChild>
+                <Link href={`/chat?word=${word}`}>
+                  <MessageSquare className="h-4 w-4" />
+                  <span className="sr-only">Chat about {word}</span>
+                </Link>
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground">Last updated: {new Date().toLocaleString()}</p>
           </CardHeader>
           <CardContent>
-            <p className="text-lg mb-4">{definition}</p>
+            {isEditingDefinition ? (
+              <div className="flex flex-col gap-2">
+                <Textarea
+                  value={editedDefinition}
+                  onChange={(e) => setEditedDefinition(e.target.value)}
+                  className="w-full"
+                />
+                <Button onClick={handleSaveDefinition}>Save Definition</Button>
+              </div>
+            ) : (
+              <p className="text-lg mb-4">{editedDefinition}</p>
+            )}
             <div className="flex justify-between items-center">
               <Button
                 variant="ghost"
@@ -95,7 +136,7 @@ export default function WordPage() {
                 {showDetails ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
               </Button>
               <div className="flex gap-2">
-                <Button variant="outline" size="icon">
+                <Button variant="outline" size="icon" onClick={handleEditDefinition}>
                   <Edit className="h-4 w-4" />
                   <span className="sr-only">Edit definition</span>
                 </Button>
@@ -106,9 +147,12 @@ export default function WordPage() {
                       <span className="sr-only">View definition history</span>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent align="end" className="w-[300px]">
                     {definitionHistory.map((def, index) => (
-                      <DropdownMenuItem key={index}>{def}</DropdownMenuItem>
+                      <DropdownMenuItem key={index} className="flex flex-col items-start">
+                        <span className="font-medium">{def.text}</span>
+                        <span className="text-sm text-muted-foreground">{def.date}</span>
+                      </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -116,7 +160,24 @@ export default function WordPage() {
             </div>
             {showDetails && (
               <div id="word-details" className="mt-4">
-                <p>{details}</p>
+                {isEditingDetails ? (
+                  <div className="flex flex-col gap-2">
+                    <Textarea
+                      value={editedDetails}
+                      onChange={(e) => setEditedDetails(e.target.value)}
+                      className="w-full"
+                    />
+                    <Button onClick={handleSaveDetails}>Save Details</Button>
+                  </div>
+                ) : (
+                  <div className="flex justify-between items-start">
+                    <p className="flex-grow">{editedDetails}</p>
+                    <Button variant="ghost" size="sm" onClick={handleEditDetails} className="ml-2">
+                      <Edit className="h-4 w-4" />
+                      <span className="sr-only">Edit details</span>
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
           </CardContent>
@@ -131,14 +192,16 @@ export default function WordPage() {
               {relatedWords.map(({ word, correlation }, index) => {
                 const fontSize = Math.max(12, Math.floor(correlation * 24)); // Scale font size between 12px and 24px
                 return (
-                  <Button
-                    key={index}
-                    variant="ghost"
-                    className={`px-2 py-1 hover:bg-primary hover:text-primary-foreground transition-colors`}
-                    style={{ fontSize: `${fontSize}px` }}
-                  >
-                    {word}
-                  </Button>
+                  <Link href={`/?word=${word}`}>
+                    <Button
+                      key={index}
+                      variant="ghost"
+                      className={`px-2 py-1 hover:bg-primary hover:text-primary-foreground transition-colors`}
+                      style={{ fontSize: `${fontSize}px` }}
+                    >
+                      {word}
+                    </Button>
+                  </Link>
                 );
               })}
             </div>

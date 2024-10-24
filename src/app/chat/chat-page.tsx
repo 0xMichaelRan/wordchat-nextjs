@@ -63,9 +63,10 @@ export default function ChatPage() {
     <div className="min-h-screen flex flex-col">
       <nav className="bg-primary text-primary-foreground p-4">
         <div className="container mx-auto flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold">WordChat</Link>
+          <Link href="/" className="text-2xl font-bold">Word</Link>
           <div className="flex gap-4">
-            <Link href="/" className="hover:underline">Words</Link>
+            <Link href="/word" className="hover:underline">Word</Link>
+            <Link href="/chat" className="hover:underline">Chat</Link>
             <Link href="/config" className="hover:underline">Config</Link>
           </div>
         </div>
