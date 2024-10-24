@@ -16,7 +16,6 @@ pnpm dlx shadcn@latest add input
 pnpm dlx shadcn@latest add label
 pnpm dlx shadcn@latest add select
 pnpm dlx shadcn@latest add dialog
-pnpm dlx shadcn@latest add dropdown
 pnpm dlx shadcn@latest add dropdown-menu
 
 npm run dev

@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 
 export default function WordPage() {
+
   // Placeholder data
   const word = "Serendipity"
   const definition = "The occurrence and development of events by chance in a happy or beneficial way."
@@ -44,7 +45,6 @@ export default function WordPage() {
   ]
 
   const [showDetails, setShowDetails] = useState(false)
-  const [showHistory, setShowHistory] = useState(false)
   const [newWord, setNewWord] = useState("")
   const [newDefinition, setNewDefinition] = useState("")
   const [newDetails, setNewDetails] = useState("")
