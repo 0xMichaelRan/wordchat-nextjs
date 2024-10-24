@@ -84,18 +84,7 @@ export default function WordPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <nav className="bg-primary text-primary-foreground p-4">
-        <div className="container mx-auto flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold">Word</Link>
-          <div className="flex gap-4">
-            <Link href="/?word=jfkd3" className="hover:underline">Word</Link>
-            <Link href="/chat" className="hover:underline">Chat</Link>
-            <Link href="/config" className="hover:underline">Config</Link>
-          </div>
-        </div>
-      </nav>
-
+    <div>
       <main className="flex-grow container mx-auto px-4 py-8 max-w-2xl">
         <Card className="mb-6">
           <CardHeader className="flex flex-col items-start">
