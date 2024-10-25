@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { ChevronDown, ChevronUp, Edit, History, MessageSquare, Plus } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -22,36 +23,47 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 
-export default function WordPage() {
+interface WordData {
+  id: string;
+  word: string;
+  definition: string;
+  details: string;
+  relatedWords: { word: string; correlation: number }[];
+  definitionHistory: { text: string; date: string }[];
+}
 
-  // Placeholder data
-  const word = "Serendipity"
-  const definition = "The occurrence and development of events by chance in a happy or beneficial way."
-  const details = "Coined by Horace Walpole in 1754. Inspired by a Persian fairy tale, 'The Three Princes of Serendip,' whose heroes often made discoveries by accident."
-  const relatedWords = [
-    { word: "Chance", correlation: 0.9 },
-    { word: "Luck", correlation: 0.8 },
-    { word: "Fortuitous", correlation: 0.7 },
-    { word: "Happenstance", correlation: 0.6 },
-    { word: "Coincidence", correlation: 0.5 },
-    { word: "Fluke", correlation: 0.4 },
-    { word: "Providence", correlation: 0.3 },
-    { word: "Fortuity", correlation: 0.2 }
-  ];
-  const definitionHistory = [
-    { text: "The faculty of making fortunate discoveries by accident.", date: "2023-06-01" },
-    { text: "The phenomenon of finding valuable things not sought for.", date: "2023-06-15" },
-    { text: "A happy accident or pleasant surprise; a fortunate mistake.", date: "2023-06-30" }
-  ]
+export default function WordPage() {
+  const { id } = useParams()
+  const [wordData, setWordData] = useState<WordData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const [showDetails, setShowDetails] = useState(false)
-  const [newWord, setNewWord] = useState("")
-  const [newDefinition, setNewDefinition] = useState("")
-  const [newDetails, setNewDetails] = useState("")
   const [isEditingDefinition, setIsEditingDefinition] = useState(false)
   const [isEditingDetails, setIsEditingDetails] = useState(false)
-  const [editedDefinition, setEditedDefinition] = useState(definition)
-  const [editedDetails, setEditedDetails] = useState(details)
+  const [editedDefinition, setEditedDefinition] = useState('')
+  const [editedDetails, setEditedDetails] = useState('')
+
+  useEffect(() => {
+    const fetchWordData = async () => {
+      try {
+        const response = await fetch(`http://localhost:3000/api/words/${id}`)
+        if (!response.ok) {
+          throw new Error('Failed to fetch word data')
+        }
+        const data: WordData = await response.json()
+        setWordData(data)
+        setEditedDefinition(data.definition)
+        setEditedDetails(data.details)
+      } catch (err) {
+        setError('An error occurred while fetching the word data.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchWordData()
+  }, [id])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -83,17 +95,25 @@ export default function WordPage() {
     console.log("Saving new details:", editedDetails)
   }
 
+  if (loading) {
+    return <div>Loading...</div>
+  }
+
+  if (error || !wordData) {
+    return <div>Error: {error || 'Word not found'}</div>
+  }
+
   return (
     <div>
       <main className="flex-grow container mx-auto px-4 py-8 max-w-2xl">
         <Card className="mb-6">
           <CardHeader className="flex flex-col items-start">
             <div className="flex items-center justify-between w-full">
-              <CardTitle className="text-3xl font-bold">{word}</CardTitle>
+              <CardTitle className="text-3xl font-bold">{wordData.word}</CardTitle>
               <Button variant="outline" size="icon" asChild>
-                <Link href={`/chat?word=${word}`}>
+                <Link href={`/chat?word=${wordData.word}`}>
                   <MessageSquare className="h-4 w-4" />
-                  <span className="sr-only">Chat about {word}</span>
+                  <span className="sr-only">Chat about {wordData.word}</span>
                 </Link>
               </Button>
             </div>
@@ -141,7 +161,7 @@ export default function WordPage() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-[300px]">
-                    {definitionHistory.map((def, index) => (
+                    {wordData.definitionHistory.map((def, index) => (
                       <DropdownMenuItem key={index} className="flex flex-col items-start">
                         <span className="font-medium">{def.text}</span>
                         <span className="text-sm text-muted-foreground">{def.date}</span>
@@ -183,18 +203,17 @@ export default function WordPage() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-3 justify-center">
-              {relatedWords.map(({ word, correlation }, index) => {
-                const fontSize = Math.max(12, Math.floor(correlation * 24)); // Scale font size between 12px and 24px
+              {wordData.relatedWords.map(({ word, correlation }) => {
+                const fontSize = Math.max(12, Math.floor(correlation * 24));
                 return (
-                  <Link href={`/?word=${word}`}>
-                  <Button
-                    key={index}
-                    variant="ghost"
-                    className={`px-2 py-1 hover:bg-primary hover:text-primary-foreground transition-colors`}
-                    style={{ fontSize: `${fontSize}px` }}
-                  >
-                    {word}
-                  </Button>
+                  <Link href={`/word/${word}`} key={word}>
+                    <Button
+                      variant="ghost"
+                      className={`px-2 py-1 hover:bg-primary hover:text-primary-foreground transition-colors`}
+                      style={{ fontSize: `${fontSize}px` }}
+                    >
+                      {word}
+                    </Button>
                   </Link>
                 );
               })}
