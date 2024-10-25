@@ -22,3 +22,12 @@ pnpm dlx shadcn@latest add slider
 
 npm run dev
 ```
+
+To bind IP, run this in PowerShell (admin):
+
+```powershell
+netsh interface portproxy add v4tov4 listenport=3000 listenaddress=0.0.0.0 connectport=3000 connectaddress=172.22.170.120
+netsh interface portproxy add v4tov4 listenport=8080 listenaddress=0.0.0.0 connectport=8080 connectaddress=172.22.170.120
+```
+
+Then the app will be accessible at http://<host-machine-ip>:3000
