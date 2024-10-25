@@ -1,8 +1,8 @@
-import WordOvalPage from "./word-sphere/word-oval-page";
+import WordSplashPage from "./word-splash/word-splash-page";
 
 export default function Home() {
     return (
-      <WordOvalPage />
+      <WordSplashPage />
     );
   }
   

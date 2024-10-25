@@ -14,7 +14,7 @@ const colors = [
   'bg-green-500', 'bg-green-600', 'bg-green-700', 'bg-green-800', 'bg-green-900'
 ]
 
-export default function WordBubblePage() {
+export default function WordSplashPage() {
   const [words, setWords] = useState<Word[]>([]);
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 })
 
