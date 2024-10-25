@@ -28,7 +28,7 @@ const defaultResponse: WordData = {
   id: "1",
   word: "ephemeral",
   definition: "Lasting for a very short time",
-  details: "From Greek \"ephemeros\" meaning lasting only one day",
+  details: "From Greek \"ephemeros\" meaning lasting only one day meaning lasting only one day meaning lasting only one day meaning lasting only one day",
   relatedWords: [],
   definitionHistory: [],
   created_at: "2024-10-25 17:03:33",
