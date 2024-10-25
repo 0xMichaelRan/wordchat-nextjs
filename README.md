@@ -17,6 +17,8 @@ pnpm dlx shadcn@latest add label
 pnpm dlx shadcn@latest add select
 pnpm dlx shadcn@latest add dialog
 pnpm dlx shadcn@latest add dropdown-menu
+pnpm dlx shadcn@latest add table
+pnpm dlx shadcn@latest add slider
 
 npm run dev
 ```
