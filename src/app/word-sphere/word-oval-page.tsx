@@ -32,7 +32,7 @@ export default function WordBubblePage() {
   useEffect(() => {
     const fetchWords = async () => {
       try {
-        const response = await fetch('http://localhost:8080/api/words?limit=20&sort=random');
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words?limit=20&sort=random`);
         if (!response.ok) {
           throw new Error('Failed to fetch words');
         }
