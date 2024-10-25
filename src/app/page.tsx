@@ -1,8 +1,8 @@
-import WordSphere from "./word-sphere/word-sphere";
+import WordSpherePage from "./word-sphere/word-sphere";
 
 export default function Home() {
     return (
-      <WordSphere />
+      <WordSpherePage />
     );
   }
   

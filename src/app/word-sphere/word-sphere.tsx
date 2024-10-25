@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+
 const words = [
   "ReactJs", "JavaScript", "TypeScript", "HTML", "CSS", "Node.js", "Express",
   "MongoDB", "GraphQL", "Redux", "Vue", "Angular", "Next.js", "Docker", "AWS"
 ]
 
-export default function WordSphere() {
+export default function WordSpherePage() {
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 })
 
   useEffect(() => {
@@ -21,13 +22,16 @@ export default function WordSphere() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  const radius = Math.min(windowSize.width, windowSize.height) * 0.35
+  const minDimension = Math.min(windowSize.width, windowSize.height)
+  const radius = minDimension * 0.3 // Reduced radius for better fit on small screens
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 overflow-hidden">
       <div 
-        className="relative w-full h-full"
+        className="relative"
         style={{
+          width: `${minDimension}px`,
+          height: `${minDimension}px`,
           perspective: '1000px',
           transformStyle: 'preserve-3d'
         }}
@@ -37,15 +41,15 @@ export default function WordSphere() {
           const theta = Math.sqrt(words.length * Math.PI) * phi
 
           // Add randomness to the position
-          const randomFactor = Math.random() * 0.3 + 0.85 // Random factor between 0.85 and 1.15
+          const randomFactor = Math.random() * 0.2 + 0.9 // Random factor between 0.9 and 1.1
           const x = radius * randomFactor * Math.cos(theta) * Math.sin(phi)
           const y = radius * randomFactor * Math.sin(theta) * Math.sin(phi)
           const z = radius * randomFactor * Math.cos(phi)
 
-          // Make font size more variable
-          const baseFontSize = 24 // Increased base font size
-          const fontSizeVariation = Math.random() * 16 // Random variation up to 16px
-          const fontSize = Math.max(baseFontSize, Math.floor(baseFontSize + fontSizeVariation - Math.abs(z) / 10))
+          // Adjust font size based on screen size
+          const baseFontSize = Math.max(16, Math.floor(minDimension / 25))
+          const fontSizeVariation = Math.random() * (baseFontSize / 2)
+          const fontSize = Math.max(baseFontSize, Math.floor(baseFontSize + fontSizeVariation - Math.abs(z) / 15))
 
           return (
             <Link
@@ -55,8 +59,8 @@ export default function WordSphere() {
               style={{
                 transform: `translate3d(${x}px, ${y}px, ${z}px)`,
                 fontSize: `${fontSize}px`,
-                opacity: (fontSize - baseFontSize + 16) / 16,
-                textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
+                opacity: (fontSize - baseFontSize + baseFontSize / 2) / (baseFontSize / 2),
+                textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
               }}
             >
               {word}
