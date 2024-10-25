@@ -1,6 +1,6 @@
 import ChatPage from "./chat-page";
 
-export default function Home() {
+export default function Chat() {
   return (
     <ChatPage />
   );

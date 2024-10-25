@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { ChevronDown, ChevronUp, Edit, History, MessageSquare, Plus } from 'lucide-react'
+import { ChevronDown, ChevronUp, Edit, History, MessageSquare } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -12,15 +12,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 
 interface WordData {
@@ -30,7 +21,18 @@ interface WordData {
   details: string;
   relatedWords: { word: string; correlation: number }[];
   definitionHistory: { text: string; date: string }[];
+  created_at: string;
 }
+
+const defaultResponse: WordData = {
+  id: "1",
+  word: "ephemeral",
+  definition: "Lasting for a very short time",
+  details: "From Greek \"ephemeros\" meaning lasting only one day",
+  relatedWords: [],
+  definitionHistory: [],
+  created_at: "2024-10-25 17:03:33",
+};
 
 export default function WordPage() {
   const { id } = useParams()
@@ -45,35 +47,28 @@ export default function WordPage() {
   const [editedDetails, setEditedDetails] = useState('')
 
   useEffect(() => {
-    const fetchWordData = async () => {
+    const fetchData = async () => {
       try {
         const response = await fetch(`http://localhost:3000/api/words/${id}`)
         if (!response.ok) {
-          throw new Error('Failed to fetch word data')
+          throw new Error('Fetch failed')
         }
-        const data: WordData = await response.json()
+        const data = await response.json()
         setWordData(data)
         setEditedDefinition(data.definition)
         setEditedDetails(data.details)
-      } catch (err) {
-        setError('An error occurred while fetching the word data.')
+      } catch (error) {
+        console.error('Error fetching word data:', error)
+        setWordData(defaultResponse)
+        setEditedDefinition(defaultResponse.definition)
+        setEditedDetails(defaultResponse.details)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchWordData()
+    fetchData()
   }, [id])
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Here you would typically save the new word to your app's state or database
-    console.log({ newWord, newDefinition, newDetails })
-    // Reset form fields
-    setNewWord("")
-    setNewDefinition("")
-    setNewDetails("")
-  }
 
   const handleEditDefinition = () => {
     setIsEditingDefinition(true)
@@ -221,57 +216,6 @@ export default function WordPage() {
           </CardContent>
         </Card>
       </main>
-
-
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button
-            className="fixed bottom-4 right-4 rounded-full w-12 h-12 shadow-lg"
-            size="icon"
-          >
-            <Plus className="h-6 w-6" />
-            <span className="sr-only">Add new word</span>
-          </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add New Word</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="word">Word</Label>
-              <Input
-                id="word"
-                value={newWord}
-                onChange={(e) => setNewWord(e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="definition">Definition (max 188 characters)</Label>
-              <Textarea
-                id="definition"
-                value={newDefinition}
-                onChange={(e) => setNewDefinition(e.target.value)}
-                maxLength={188}
-                required
-              />
-              <p className="text-sm text-muted-foreground mt-1">
-                {newDefinition.length}/188 characters
-              </p>
-            </div>
-            <div>
-              <Label htmlFor="details">Detailed Information</Label>
-              <Textarea
-                id="details"
-                value={newDetails}
-                onChange={(e) => setNewDetails(e.target.value)}
-              />
-            </div>
-            <Button type="submit">Add Word</Button>
-          </form>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }

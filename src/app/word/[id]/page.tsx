@@ -1,6 +1,6 @@
 import WordPage from "./word-page";
 
-export default function Word() {
+export default function WordById() {
     return (
         <WordPage />
     );
