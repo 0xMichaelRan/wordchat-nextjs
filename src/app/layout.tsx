@@ -34,7 +34,6 @@ export default function RootLayout({
                   <Link href="/" className="text-2xl font-bold">Word</Link>
                   <div className="flex gap-4">
                     <Link href="/?word=jfkd3" className="hover:underline">Word</Link>
-                    <Link href="/chat" className="hover:underline">Chat</Link>
                     <Link href="/config" className="hover:underline">Config</Link>
                   </div>
                 </div>

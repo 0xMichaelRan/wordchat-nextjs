@@ -106,7 +106,11 @@ export default function WordPage() {
                   value={editedDefinition}
                   onChange={(e) => setEditedDefinition(e.target.value)}
                   className="w-full"
+                  maxLength={188}
                 />
+                <div className="text-sm text-muted-foreground">
+                  {editedDefinition.length}/188 characters
+                </div>
                 <Button onClick={handleSaveDefinition}>Save Definition</Button>
               </div>
             ) : (
@@ -155,12 +159,13 @@ export default function WordPage() {
                       value={editedDetails}
                       onChange={(e) => setEditedDetails(e.target.value)}
                       className="w-full"
+                      rows={8}
                     />
                     <Button onClick={handleSaveDetails}>Save Details</Button>
                   </div>
                 ) : (
                   <div className="flex justify-between items-start">
-                    <p className="flex-grow">{editedDetails}</p>
+                    <p className="flex-grow whitespace-pre-line">{editedDetails}</p>
                     <Button variant="ghost" size="sm" onClick={handleEditDetails} className="ml-2">
                       <Edit className="h-4 w-4" />
                       <span className="sr-only">Edit details</span>
@@ -182,14 +187,14 @@ export default function WordPage() {
                 const fontSize = Math.max(12, Math.floor(correlation * 24)); // Scale font size between 12px and 24px
                 return (
                   <Link href={`/?word=${word}`}>
-                    <Button
-                      key={index}
-                      variant="ghost"
-                      className={`px-2 py-1 hover:bg-primary hover:text-primary-foreground transition-colors`}
-                      style={{ fontSize: `${fontSize}px` }}
-                    >
-                      {word}
-                    </Button>
+                  <Button
+                    key={index}
+                    variant="ghost"
+                    className={`px-2 py-1 hover:bg-primary hover:text-primary-foreground transition-colors`}
+                    style={{ fontSize: `${fontSize}px` }}
+                  >
+                    {word}
+                  </Button>
                   </Link>
                 );
               })}
@@ -197,6 +202,7 @@ export default function WordPage() {
           </CardContent>
         </Card>
       </main>
+
 
       <Dialog>
         <DialogTrigger asChild>
