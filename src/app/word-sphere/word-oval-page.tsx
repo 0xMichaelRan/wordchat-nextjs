@@ -1,31 +1,39 @@
 "use client"
 
+import Link from 'next/link'
 import { useState, useEffect, useRef } from 'react'
 
-const words = [
-  { text: "ReactJs", size: 0.9 },
-  { text: "JavaScript", size: 1.0 },
-  { text: "TypeScript", size: 0.8 },
-  { text: "HTML", size: 0.7 },
-  { text: "CSS", size: 0.7 },
-  { text: "Node.js", size: 0.85 },
-  { text: "Express", size: 0.6 },
-  { text: "MongoDB", size: 0.75 },
-  { text: "GraphQL", size: 0.7 },
-  { text: "Redux", size: 0.65 },
-  { text: "Vue", size: 0.6 },
-  { text: "Angular", size: 0.7 },
-  { text: "Next.js", size: 0.8 },
-  { text: "Docker", size: 0.75 },
-  { text: "AWS", size: 0.85 },
-  { text: "React Native", size: 0.7 },
-  { text: "Svelte", size: 0.5 },
-  { text: "Webpack", size: 0.6 },
-  { text: "Jest", size: 0.55 },
-  { text: "Cypress", size: 0.5 }
+interface Word {
+  id: number;
+  text: string;
+  size: number;
+}
+
+const defaultWords: Word[] = [
+  { id: Math.floor(Math.random() * 39) + 1, text: "ReactJs", size: 0.9 },
+  { id: Math.floor(Math.random() * 39) + 1, text: "JavaScript", size: 1.0 },
+  { id: Math.floor(Math.random() * 39) + 1, text: "TypeScript", size: 0.8 },
+  { id: Math.floor(Math.random() * 39) + 1, text: "HTML", size: 0.7 },
+  { id: Math.floor(Math.random() * 39) + 1, text: "CSS", size: 0.7 },
+  { id: Math.floor(Math.random() * 39) + 1, text: "Node.js", size: 0.85 },
+  { id: Math.floor(Math.random() * 39) + 1, text: "Express", size: 0.6 },
+  { id: Math.floor(Math.random() * 39) + 1, text: "MongoDB", size: 0.75 },
+  { id: Math.floor(Math.random() * 39) + 1, text: "GraphQL", size: 0.7 },
+  { id: Math.floor(Math.random() * 39) + 1, text: "Redux", size: 0.65 },
+  { id: Math.floor(Math.random() * 39) + 1, text: "Vue", size: 0.6 },
+  { id: Math.floor(Math.random() * 39) + 1, text: "Angular", size: 0.7 },
+  { id: Math.floor(Math.random() * 39) + 1, text: "Next.js", size: 0.8 },
+  { id: Math.floor(Math.random() * 39) + 1, text: "Docker", size: 0.75 },
+  { id: Math.floor(Math.random() * 39) + 1, text: "AWS", size: 0.85 },
+  { id: Math.floor(Math.random() * 39) + 1, text: "React Native", size: 0.7 },
+  { id: Math.floor(Math.random() * 39) + 1, text: "Svelte", size: 0.5 },
+  { id: Math.floor(Math.random() * 39) + 1, text: "Webpack", size: 0.6 },
+  { id: Math.floor(Math.random() * 39) + 1, text: "Jest", size: 0.55 },
+  { id: Math.floor(Math.random() * 39) + 1, text: "Cypress", size: 0.5 }
 ]
 
 export default function WordOvalPage() {
+  const [words, setWords] = useState<Word[]>(defaultWords);
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 })
   const placedWords = useRef<Array<{ x: number, y: number, width: number, height: number }>>([])
 
@@ -40,9 +48,35 @@ export default function WordOvalPage() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
+  useEffect(() => {
+    const fetchWords = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/api/words?limit=20&sort=random');
+        if (!response.ok) {
+          throw new Error('Failed to fetch words');
+        }
+        const data = await response.json();
+        console.log("data", data)
+
+        const fetchedWords: Word[] = data.map((word: any) => ({
+          id: word.id,
+          text: word.word,
+          size: word.size
+        }));
+        setWords(fetchedWords);
+      } catch (error) {
+        console.error('Error fetching words:', error);
+        // Fallback to default words if fetch fails
+        setWords(defaultWords);
+      }
+    };
+
+    fetchWords();
+  }, []);
+
   const aspectRatio = windowSize.width / windowSize.height
   const ovalWidth = Math.min(windowSize.width * 0.95, 888)
-  const ovalHeight = ovalWidth / aspectRatio / 1.2
+  const ovalHeight = ovalWidth / aspectRatio / 1.3
 
   const checkCollision = (x: number, y: number, width: number, height: number) => {
     for (const word of placedWords.current) {
@@ -75,7 +109,7 @@ export default function WordOvalPage() {
       do {
         const angle = ((index + attempts) / array.length) * 2 * Math.PI
         x = (Math.cos(angle) * ovalWidth * 0.45 * radiusMultiplier) + (ovalWidth * 0.1 * (Math.random() - 0.5))
-        y = (Math.sin(angle) * ovalHeight * 0.45 * radiusMultiplier) + (ovalHeight * 0.1 * (Math.random() - 0.5))
+        y = -88 + (Math.sin(angle) * ovalHeight * 0.45 * radiusMultiplier) + (ovalHeight * 0.1 * (Math.random() - 0.5))
         attempts++
       } while (checkCollision(x + ovalWidth / 2 - wordWidth / 2, y + ovalHeight / 2 - wordHeight / 2, wordWidth, wordHeight) && attempts < 50)
 
@@ -94,8 +128,9 @@ export default function WordOvalPage() {
       const distanceFromCenter = Math.sqrt(Math.pow(x / (ovalWidth / 2), 2) + Math.pow(y / (ovalHeight / 2), 2))
 
       return (
-        <div
+        <Link
           key={word.text}
+          href={`/word/${word.id}`}
           className="absolute cursor-pointer transition-all duration-300 hover:text-yellow-300 hover:scale-110"
           style={{
             left: `${x + ovalWidth / 2}px`,
@@ -108,7 +143,7 @@ export default function WordOvalPage() {
           }}
         >
           {word.text}
-        </div>
+        </Link>
       )
     }).filter(Boolean) // Remove any null elements (words that couldn't be placed)
   }
