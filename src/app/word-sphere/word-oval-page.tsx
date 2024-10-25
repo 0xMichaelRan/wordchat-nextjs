@@ -55,17 +55,19 @@ export default function WordBubblePage() {
     const placedBubbles: { x: number, y: number, width: number, height: number }[] = []
 
     const checkCollision = (x: number, y: number, width: number, height: number) => {
+      const margin = 18; // Adjust this value to control the strictness of collision detection
+
       for (const bubble of placedBubbles) {
         if (
-          x < bubble.x + bubble.width &&
-          x + width > bubble.x &&
-          y < bubble.y + bubble.height &&
-          y + height > bubble.y
+          x < bubble.x + bubble.width - margin &&
+          x + width > bubble.x + margin &&
+          y < bubble.y + bubble.height - margin &&
+          y + height > bubble.y + margin
         ) {
-          return true // Collision detected
+          return true; // Collision detected
         }
       }
-      return false // No collision
+      return false; // No collision
     }
 
     words.forEach((word, index) => {
