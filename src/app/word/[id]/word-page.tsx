@@ -15,23 +15,23 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 
 interface WordData {
-  id: string;
+  id: number;
   word: string;
   definition: string;
   details: string;
-  relatedWords: { word: string; correlation: number }[];
-  definitionHistory: { text: string; date: string }[];
   created_at: string;
+  related_words: { id: number; word: string }[];
+  definition_history: { id: number | null; word_id: number; previous_definition: string; changed_at: string }[];
 }
 
 const defaultResponse: WordData = {
-  id: "1",
+  id: 1,
   word: "ephemeral",
   definition: "Lasting for a very short time",
   details: "From Greek \"ephemeros\" meaning lasting only one day meaning lasting only one day meaning lasting only one day meaning lasting only one day",
-  relatedWords: [],
-  definitionHistory: [],
   created_at: "2024-10-25 17:03:33",
+  related_words: [],
+  definition_history: [],
 };
 
 export default function WordPage() {
@@ -49,7 +49,7 @@ export default function WordPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/api/words/${id}`)
+        const response = await fetch(`http://localhost:8080/api/words/${id}`)
         if (!response.ok) {
           throw new Error('Fetch failed')
         }
@@ -156,10 +156,10 @@ export default function WordPage() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-[300px]">
-                    {wordData.definitionHistory.map((def, index) => (
+                    {wordData.definition_history.map((def, index) => (
                       <DropdownMenuItem key={index} className="flex flex-col items-start">
-                        <span className="font-medium">{def.text}</span>
-                        <span className="text-sm text-muted-foreground">{def.date}</span>
+                        <span className="font-medium">{def.previous_definition}</span>
+                        <span className="text-sm text-muted-foreground">{def.changed_at}</span>
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>
@@ -198,10 +198,11 @@ export default function WordPage() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-3 justify-center">
-              {wordData.relatedWords.map(({ word, correlation }) => {
-                const fontSize = Math.max(12, Math.floor(correlation * 24));
+              {wordData.related_words.map(({ id, word }) => {
+                // Since we don't have a correlation value, we'll use a fixed font size
+                const fontSize = 16; // You can adjust this value as needed
                 return (
-                  <Link href={`/word/${word}`} key={word}>
+                  <Link href={`/word/${id}`} key={id}>
                     <Button
                       variant="ghost"
                       className={`px-2 py-1 hover:bg-primary hover:text-primary-foreground transition-colors`}
