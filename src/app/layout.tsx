@@ -29,7 +29,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >    <div className="min-h-screen flex flex-col">
-              <nav className="bg-primary text-primary-foreground p-4">
+              <nav className="bg-primary text-primary-foreground p-4 fixed top-0 left-0 right-0 z-50">
                 <div className="container mx-auto flex justify-between items-center">
                   <Link href="/" className="text-2xl font-bold">WordChat</Link>
                   <div className="flex gap-4">
@@ -37,7 +37,9 @@ export default function RootLayout({
                   </div>
                 </div>
               </nav>
-              {children}
+              <div className="pt-16"> {/* Add padding to prevent content from being hidden behind the navbar */}
+                {children}
+              </div>
             </div>
       </body>
     </html>
