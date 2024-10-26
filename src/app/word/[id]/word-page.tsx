@@ -111,8 +111,9 @@ export default function WordPage() {
     <main className="flex-grow container mx-auto px-4 py-8 max-w-2xl">
       <Card className="mb-6 border-2 shadow-lg">
         <CardHeader className="flex flex-col items-start">
+          <CardTitle className="text-3xl font-bold">{wordData.word}</CardTitle>
           <div className="flex items-center justify-between w-full">
-            <CardTitle className="text-3xl font-bold">{wordData.word}</CardTitle>
+            <p className="text-sm text-muted-foreground">{new Date().toLocaleString()}</p>
             <div className="flex space-x-2">
               <Button variant="outline" size="icon" asChild>
                 <Link href={`/chat/${wordData.word}`}>
@@ -126,7 +127,6 @@ export default function WordPage() {
               </Button>
             </div>
           </div>
-          <p className="text-sm text-muted-foreground">Last updated: {new Date().toLocaleString()}</p>
         </CardHeader>
         <CardContent>
           {isEditingExplain ? (
@@ -144,9 +144,9 @@ export default function WordPage() {
             </div>
           ) : (
             <p className="text-lg mb-4">
-              {editedExplain.split(' ').map((word, index) => 
-                ['Tokenization', 'Transformer', 'Fine-Tuning', 'Beam'].includes(word) ? 
-                  <Badge key={index} variant="outline" className="mx-1">{word}</Badge> : 
+              {editedExplain.split(' ').map((word, index) =>
+                ['Tokenization', 'Transformer', 'Fine-Tuning', 'Beam'].includes(word) ?
+                  <Badge key={index} variant="outline" className="mx-1">{word}</Badge> :
                   ` ${word} `
               )}
             </p>
