@@ -32,10 +32,10 @@ const defaultResponse: WordData = {
 };
 
 const defaultRelatedWords = [
-  { related_word_id: 2, correlation: 0.8 },
-  { related_word_id: 3, correlation: 0.7 },
-  { related_word_id: 6, correlation: 0.6 },
-  { related_word_id: 10, correlation: 0.5 },
+  { related_word_id: 2, correlation: 0.8, related_word: "GPT (Generative Pre-trained Transformer)" },
+  { related_word_id: 3, correlation: 0.7, related_word: "Sequence-to-Sequence Model" },
+  { related_word_id: 6, correlation: 0.6, related_word: "Fine-Tuning" },
+  { related_word_id: 10, correlation: 0.5, related_word: "Beam" },
 ];
 
 const defaultExplainHistory = [
@@ -57,7 +57,7 @@ const defaultExplainHistory = [
 export default function WordPage() {
   const { id } = useParams()
   const [wordData, setWordData] = useState<WordData | null>(null)
-  const [relatedWords, setRelatedWords] = useState<{ related_word_id: number; correlation: number }[]>([])
+  const [relatedWords, setRelatedWords] = useState<{ related_word_id: number; correlation: number; related_word: string }[]>([])
   const [explainHistory, setExplainHistory] = useState<{ id: number | null; word_id: number; previous_explain: string; changed_at: string }[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -244,7 +244,7 @@ export default function WordPage() {
               {isEditingDetails ? (
                 <div className="flex flex-col gap-2">
                   <Textarea
-                    value={editedDetails}
+                    value={editedDetails || ''}  // Ensure value is a string
                     onChange={(e) => setEditedDetails(e.target.value)}
                     className="w-full"
                     rows={8}
@@ -271,14 +271,14 @@ export default function WordPage() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-3 justify-center">
-            {relatedWords.map(({ related_word_id, correlation }, index) => (
+            {relatedWords.map(({ related_word_id, correlation, related_word }, index) => (
               <Link href={`/word/${related_word_id}`} key={`${related_word_id}-${index}`}>
                 <Button
                   variant="ghost"
                   className="px-2 py-1 hover:bg-primary hover:text-primary-foreground transition-colors"
                   style={{ fontSize: '16px' }}
                 >
-                  {related_word_id} ({correlation.toFixed(2)})
+                  {related_word} ({correlation.toFixed(2)})
                 </Button>
               </Link>
             ))}
