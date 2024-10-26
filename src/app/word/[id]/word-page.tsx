@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { ChevronDown, ChevronUp, Edit, History, MessageSquare, GitMerge, Sparkles } from 'lucide-react'
+import { ChevronDown, ChevronUp, Edit, History, MessageSquare, GitMerge, Sparkles, X } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -28,7 +28,7 @@ const defaultResponse: WordData = {
   id: 12,
   word: "Greedy Decoding",
   explain: "A decoding strategy that selects the most probable word at each step in sequence generation.",
-  details: "This site can’t be reached192.168.2.172 refused to connect. SQLITE_CONSTRAINT: UNIQUE constraint failed: This site can’t be reached192.168.2.172 refused to connect. SQLITE_CONSTRAINT: UNIQUE constraint failed This site can’t be reached192.168.2.172 refused to connect. SQLITE_CONSTRAINT: UNIQUE constraint failed",
+  details: "Move chat button to the same line as last updated timestamp, and remove the word \"Last Updated\", just keep the date and time. Also add a merge button alongside the chat button. Make the border more bold and shaded., and add apply tag style border to related words. I'll modify the component to move the chat button to the same line as the timestamp, remove \"Last Updated\", add a merge button, make the border more bold and shaded, and apply a tag style border to related words. Here's the updated component.",
   created_at: "2024-06-25 22:40:19",
 };
 
@@ -98,10 +98,10 @@ export default function WordPage() {
         if (!wordResponse.ok) {
           throw new Error('Fetch failed')
         }
-        const wordData = await wordResponse.json()
-        setWordData(wordData)
-        setEditedExplain(wordData.explain)
-        setEditedDetails(wordData.details || '')
+        const fetchedWordData = await wordResponse.json()
+        setWordData(fetchedWordData)
+        setEditedExplain(fetchedWordData.explain)
+        setEditedDetails(fetchedWordData.details || '')
 
         const relatedResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/related/${id}`)
         if (!relatedResponse.ok) {
@@ -119,9 +119,9 @@ export default function WordPage() {
         setExplainHistory(historyData)
 
         // Check if explain is empty and generate if needed
-        if (wordData.explain === "") {
-          console.log("Explain is empty, generating explain for", wordData.word)
-          handleGenerateExplain(wordData.word)
+        if (fetchedWordData.explain === "") {
+          console.log("Explain is empty, generating explain for", fetchedWordData.word)
+          handleGenerateExplain(fetchedWordData.word)
         }
 
       } catch (error) {
@@ -171,17 +171,19 @@ export default function WordPage() {
   };
 
   const handleEditExplain = () => {
-    setIsEditingExplain(true);
-    setShowDetails(true); // Ensure details are shown
-    setTimeout(() => {
-      explainTextareaRef.current?.focus();
-    }, 0); // Ensure focus is called after the state update
+    setIsEditingExplain(!isEditingExplain);
+    if (!isEditingExplain) {
+      setShowDetails(true); // Ensure details are shown when opening the editor
+      setTimeout(() => {
+        explainTextareaRef.current?.focus();
+      }, 0);
+    }
   }
 
   const handleSaveExplain = () => {
     if (editedExplain.trim() === '') {
-      console.log('Explain field cannot be empty'); // Optionally set an error message
-      return; // Exit the function if the explain is empty
+      console.log('Explain field cannot be empty');
+      return;
     }
 
     setIsEditingExplain(false);
@@ -234,7 +236,9 @@ export default function WordPage() {
       generatedExplain = generatedExplain.replace(new RegExp(`^${word}:?\\s*`, 'i'), '');
 
       setEditedExplain(generatedExplain);
-      updateWordData({ explain: generatedExplain });
+      if (wordData) {
+        updateWordData({ explain: generatedExplain });
+      }
     } catch (error) {
       console.error('Error generating explanation:', error);
       setError('Failed to generate explanation');
@@ -315,9 +319,19 @@ export default function WordPage() {
               {showDetails ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
             </Button>
             <div className="flex gap-2 items-center">
-              <Button variant="outline" size="icon" onClick={handleEditExplain}>
-                <Edit className="h-4 w-4" />
-                <span className="sr-only">Edit explain</span>
+              <Button 
+                variant="outline" 
+                size="icon" 
+                onClick={handleEditExplain}
+              >
+                {isEditingExplain ? (
+                  <X className="h-4 w-4" />
+                ) : (
+                  <Edit className="h-4 w-4" />
+                )}
+                <span className="sr-only">
+                  {isEditingExplain ? "Cancel edit" : "Edit explain"}
+                </span>
               </Button>
               <Button
                 variant="outline"

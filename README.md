@@ -1,5 +1,3 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
 ## Getting Started
 
 Run the development server:
@@ -32,3 +30,14 @@ netsh interface portproxy add v4tov4 listenport=8080 listenaddress=0.0.0.0 conne
 ```
 
 Then the app will be accessible at http://<host-machine-ip>:3000
+
+## Backlog
+
+Done:
+
+* get random empoty word
+* return history DESC
+
+To do:
+
+* remove empty explain from history SQL query
