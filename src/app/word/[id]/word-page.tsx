@@ -196,7 +196,13 @@ export default function WordPage() {
               <Textarea
                 value={editedExplain}
                 onChange={(e) => setEditedExplain(e.target.value)}
-                className="w-full h-32" // Added height class
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault(); // Prevent default behavior of Enter key (e.g., adding a new line)
+                    handleSaveExplain();
+                  }
+                }}
+                className="w-full h-32"
                 maxLength={188}
               />
               <div className="text-sm text-muted-foreground">
