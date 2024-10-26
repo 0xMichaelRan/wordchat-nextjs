@@ -29,7 +29,7 @@ const defaultResponse: WordData = {
   id: 12,
   word: "Greedy Decoding",
   explain: "A decoding strategy that selects the most probable word at each step in sequence generation.",
-  details: "This site can’t be reached192.168.2.172 refused to connect. SQLITE_CONSTRAINT: UNIQUE constraint failed: This site can’t be reached192.168.2.172 refused to connect. SQLITE_CONSTRAINT: UNIQUE constraint failed This site can’t be reached192.168.2.172 refused to connect. SQLITE_CONSTRAINT: UNIQUE constraint failed - related_words.word_id, related_words.related_word_id",
+  details: "This site can’t be reached192.168.2.172 refused to connect. SQLITE_CONSTRAINT: UNIQUE constraint failed: This site can’t be reached192.168.2.172 refused to connect. SQLITE_CONSTRAINT: UNIQUE constraint failed This site can’t be reached192.168.2.172 refused to connect. SQLITE_CONSTRAINT: UNIQUE constraint failed",
   created_at: "2024-06-25 22:40:19",
   related_words: [
     { id: 3, word: "Attention Mechanism" },
@@ -79,13 +79,35 @@ export default function WordPage() {
     fetchData()
   }, [id])
 
+  const updateWordData = async (updatedData: Partial<WordData>) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Update failed');
+      }
+
+      const data = await response.json();
+      setWordData(data);
+    } catch (error) {
+      console.error('Error updating word data:', error);
+      setError('Failed to update word data');
+    }
+  };
+
   const handleEditExplain = () => {
     setIsEditingExplain(true)
   }
 
   const handleSaveExplain = () => {
     setIsEditingExplain(false)
-    // Here you would typically update your app's state or make an API call
+    updateWordData({ explain: editedExplain });
     console.log("Saving new explain:", editedExplain)
   }
 
@@ -95,7 +117,7 @@ export default function WordPage() {
 
   const handleSaveDetails = () => {
     setIsEditingDetails(false)
-    // Here you would typically update your app's state or make an API call
+    updateWordData({ details: editedDetails });
     console.log("Saving new details:", editedDetails)
   }
 
@@ -164,7 +186,6 @@ export default function WordPage() {
               {showDetails ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
             </Button>
             <div className="flex gap-2 items-center">
-              <span className="text-sm text-muted-foreground">{new Date().toLocaleString()}</span>
               <Button variant="outline" size="icon" onClick={handleEditExplain}>
                 <Edit className="h-4 w-4" />
                 <span className="sr-only">Edit explain</span>
