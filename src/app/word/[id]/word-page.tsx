@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { ChevronDown, ChevronUp, Edit, History, MessageSquare, GitMerge } from 'lucide-react'
@@ -68,6 +68,9 @@ export default function WordPage() {
   const [editedExplain, setEditedExplain] = useState('')
   const [editedDetails, setEditedDetails] = useState('')
 
+  const detailsTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const explainTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -133,7 +136,10 @@ export default function WordPage() {
   };
 
   const handleEditExplain = () => {
-    setIsEditingExplain(true)
+    setIsEditingExplain(true);
+    setTimeout(() => {
+      explainTextareaRef.current?.focus();
+    }, 0); // Ensure focus is called after the state update
   }
 
   const handleSaveExplain = () => {
@@ -148,8 +154,11 @@ export default function WordPage() {
   }
 
   const handleEditDetails = () => {
-    setIsEditingDetails(true)
-  }
+    setIsEditingDetails(true);
+    setTimeout(() => {
+      detailsTextareaRef.current?.focus();
+    }, 0); // Ensure focus is called after the state update
+  };
 
   const handleSaveDetails = () => {
     if (editedDetails.trim() === '') {
@@ -194,6 +203,7 @@ export default function WordPage() {
           {isEditingExplain ? (
             <div className="flex flex-col gap-2">
               <Textarea
+                ref={explainTextareaRef}
                 value={editedExplain}
                 onChange={(e) => setEditedExplain(e.target.value)}
                 onKeyDown={(e) => {
@@ -259,6 +269,7 @@ export default function WordPage() {
               {isEditingDetails ? (
                 <div className="flex flex-col gap-2">
                   <Textarea
+                    ref={detailsTextareaRef}
                     value={editedDetails || ''}
                     onChange={(e) => setEditedDetails(e.target.value)}
                     className="w-full"
