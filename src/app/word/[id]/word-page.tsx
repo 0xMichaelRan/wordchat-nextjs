@@ -81,7 +81,7 @@ export default function WordPage() {
         const wordData = await wordResponse.json()
         setWordData(wordData)
         setEditedExplain(wordData.explain)
-        setEditedDetails(wordData.details)
+        setEditedDetails(wordData.details || ''); // Use empty string if details is null
 
         const relatedResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/related/${id}`)
         if (!relatedResponse.ok) {
@@ -102,7 +102,7 @@ export default function WordPage() {
         console.error('Error fetching data:', error)
         setWordData(defaultResponse)
         setEditedExplain(defaultResponse.explain)
-        setEditedDetails(defaultResponse.details)
+        setEditedDetails(defaultResponse.details || ''); // Use empty string if details is null
         setRelatedWords(defaultRelatedWords)
         setExplainHistory(defaultExplainHistory)
       } finally {
@@ -163,8 +163,8 @@ export default function WordPage() {
 
   const handleSaveDetails = () => {
     if (editedDetails.trim() === '') {
-      console.log('Details cannot be empty');
-      return;
+      console.log('Details is empty, saving anyway.');
+      // return;
     }
     setIsEditingDetails(false);
     updateWordData({ details: editedDetails });
@@ -271,7 +271,7 @@ export default function WordPage() {
                 <div className="flex flex-col gap-2">
                   <Textarea
                     ref={detailsTextareaRef}
-                    value={editedDetails || ''}
+                    value={editedDetails}
                     onChange={(e) => setEditedDetails(e.target.value)}
                     onKeyDown={(e) => {
                       if ((e.ctrlKey && e.key === 'Enter') || (e.ctrlKey && e.key === 's')) {
