@@ -132,6 +132,15 @@ export default function WordPage() {
 
       const data = await response.json();
       setWordData(data);
+
+      // Fetch explain history again
+      const historyResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}/history`);
+      if (!historyResponse.ok) {
+        throw new Error('Fetch explain history failed');
+      }
+      const historyData = await historyResponse.json();
+      setExplainHistory(historyData);
+
     } catch (error) {
       console.error('Error updating word data:', error);
       setError('Failed to update word data');
@@ -167,7 +176,6 @@ export default function WordPage() {
   const handleSaveDetails = () => {
     if (editedDetails.trim() === '') {
       console.log('Details is empty, saving anyway.');
-      // return;
     }
     setIsEditingDetails(false);
     updateWordData({ details: editedDetails });
@@ -182,7 +190,7 @@ export default function WordPage() {
         messages: [
           {
             role: "user",
-            content: `Generate a concise definition (100-150 characters) for the term "${wordData?.word}" in the context of AI and machine learning.`
+            content: `Generate a concise definition (120-170 characters) for the term "${wordData?.word}" in the context of AI and machine learning.`
           }
         ]
       }, {
@@ -192,7 +200,14 @@ export default function WordPage() {
         }
       });
 
-      const generatedExplain = response.data.choices[0].message.content.trim();
+      let generatedExplain = response.data.choices[0].message.content.trim();
+      
+      // Remove double quotes if the text is quoted
+      generatedExplain = generatedExplain.replace(/^"(.*)"$/, '$1');
+      
+      // Remove the word and optional semicolon if they appear at the beginning
+      generatedExplain = generatedExplain.replace(new RegExp(`^${wordData?.word}:?\\s*`, 'i'), '');
+    
       setEditedExplain(generatedExplain);
       updateWordData({ explain: generatedExplain });
     } catch (error) {
