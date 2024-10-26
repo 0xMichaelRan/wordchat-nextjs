@@ -8,6 +8,9 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import axios from 'axios'
 import { useParams } from 'next/navigation'
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 const preGeneratedPrompts = [
   "Explain in simpler terms",
@@ -44,7 +47,7 @@ export default function ChatPage() {
         messages: [
           {
             role: "user",
-            content: `Tell me about the word "${currentWord}" in relation to: ${content}`
+            content: `Tell me about the word "${currentWord}" in relation to: ${content}, use simple and concise language.`
           }
         ]
       }, {
