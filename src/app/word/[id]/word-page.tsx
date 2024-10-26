@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { ChevronDown, ChevronUp, Edit, History, MessageSquare, GitMerge } from 'lucide-react'
+import { ChevronDown, ChevronUp, Edit, History, MessageSquare, GitMerge, Sparkles } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
+import axios from 'axios'
 
 interface WordData {
   id: number;
@@ -70,6 +71,8 @@ export default function WordPage() {
 
   const detailsTextareaRef = useRef<HTMLTextAreaElement | null>(null);
   const explainTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -171,6 +174,35 @@ export default function WordPage() {
     console.log("Saving new details:", editedDetails);
   }
 
+  const handleGenerateExplain = async () => {
+    setIsGenerating(true);
+    try {
+      const response = await axios.post(process.env.NEXT_PUBLIC_API_ENDPOINT!, {
+        model: process.env.NEXT_PUBLIC_API_MODEL,
+        messages: [
+          {
+            role: "user",
+            content: `Generate a concise definition (100-150 characters) for the term "${wordData?.word}" in the context of AI and machine learning.`
+          }
+        ]
+      }, {
+        headers: {
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const generatedExplain = response.data.choices[0].message.content.trim();
+      setEditedExplain(generatedExplain);
+      updateWordData({ explain: generatedExplain });
+    } catch (error) {
+      console.error('Error generating explanation:', error);
+      setError('Failed to generate explanation');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   if (loading) {
     return <div>Loading...</div>
   }
@@ -246,6 +278,15 @@ export default function WordPage() {
               <Button variant="outline" size="icon" onClick={handleEditExplain}>
                 <Edit className="h-4 w-4" />
                 <span className="sr-only">Edit explain</span>
+              </Button>
+              <Button 
+                variant="outline" 
+                size="icon" 
+                onClick={handleGenerateExplain} 
+                disabled={isGenerating}
+              >
+                <Sparkles className="h-4 w-4" />
+                <span className="sr-only">Generate LLM explanation</span>
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
