@@ -19,6 +19,7 @@ pnpm dlx shadcn@latest add dialog
 pnpm dlx shadcn@latest add dropdown-menu
 pnpm dlx shadcn@latest add table
 pnpm dlx shadcn@latest add slider
+pnpm dlx shadcn@latest add badge
 
 npm run dev
 ```

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { ChevronDown, ChevronUp, Edit, History, MessageSquare } from 'lucide-react'
+import { ChevronDown, ChevronUp, Edit, History, MessageSquare, GitMerge } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Textarea } from "@/components/ui/textarea"
+import { Badge } from "@/components/ui/badge"
 
 interface WordData {
   id: number;
@@ -108,16 +109,22 @@ export default function WordPage() {
 
   return (
     <main className="flex-grow container mx-auto px-4 py-8 max-w-2xl">
-      <Card className="mb-6">
+      <Card className="mb-6 border-2 shadow-lg">
         <CardHeader className="flex flex-col items-start">
           <div className="flex items-center justify-between w-full">
             <CardTitle className="text-3xl font-bold">{wordData.word}</CardTitle>
-            <Button variant="outline" size="icon" asChild>
-              <Link href={`/chat/${wordData.word}`}>
-                <MessageSquare className="h-4 w-4" />
-                <span className="sr-only">Chat about {wordData.word}</span>
-              </Link>
-            </Button>
+            <div className="flex space-x-2">
+              <Button variant="outline" size="icon" asChild>
+                <Link href={`/chat/${wordData.word}`}>
+                  <MessageSquare className="h-4 w-4" />
+                  <span className="sr-only">Chat about {wordData.word}</span>
+                </Link>
+              </Button>
+              <Button variant="outline" size="icon">
+                <GitMerge className="h-4 w-4" />
+                <span className="sr-only">Merge {wordData.word}</span>
+              </Button>
+            </div>
           </div>
           <p className="text-sm text-muted-foreground">Last updated: {new Date().toLocaleString()}</p>
         </CardHeader>
@@ -136,7 +143,13 @@ export default function WordPage() {
               <Button onClick={handleSaveExplain}>Save Explain</Button>
             </div>
           ) : (
-            <p className="text-lg mb-4">{editedExplain}</p>
+            <p className="text-lg mb-4">
+              {editedExplain.split(' ').map((word, index) => 
+                ['Tokenization', 'Transformer', 'Fine-Tuning', 'Beam'].includes(word) ? 
+                  <Badge key={index} variant="outline" className="mx-1">{word}</Badge> : 
+                  ` ${word} `
+              )}
+            </p>
           )}
           <div className="flex justify-between items-center">
             <Button
@@ -150,7 +163,8 @@ export default function WordPage() {
               {showDetails ? "Less" : "More"}
               {showDetails ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
             </Button>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
+              <span className="text-sm text-muted-foreground">{new Date().toLocaleString()}</span>
               <Button variant="outline" size="icon" onClick={handleEditExplain}>
                 <Edit className="h-4 w-4" />
                 <span className="sr-only">Edit explain</span>
