@@ -17,21 +17,29 @@ import { Textarea } from "@/components/ui/textarea"
 interface WordData {
   id: number;
   word: string;
-  definition: string;
+  explain: string;
   details: string;
   created_at: string;
   related_words: { id: number; word: string }[];
-  definition_history: { id: number | null; word_id: number; previous_definition: string; changed_at: string }[];
+  explain_history: { id: number | null; word_id: number; previous_explain: string; changed_at: string }[];
 }
 
 const defaultResponse: WordData = {
-  id: 1,
-  word: "ephemeral",
-  definition: "Lasting for a very short time",
-  details: "From Greek \"ephemeros\" meaning lasting only one day meaning lasting only one day meaning lasting only one day meaning lasting only one day",
-  created_at: "2024-10-25 17:03:33",
-  related_words: [],
-  definition_history: [],
+  id: 12,
+  word: "Greedy Decoding",
+  explain: "A decoding strategy that selects the most probable word at each step in sequence generation.",
+  details: "This site can’t be reached192.168.2.172 refused to connect. SQLITE_CONSTRAINT: UNIQUE constraint failed: This site can’t be reached192.168.2.172 refused to connect. SQLITE_CONSTRAINT: UNIQUE constraint failed This site can’t be reached192.168.2.172 refused to connect. SQLITE_CONSTRAINT: UNIQUE constraint failed - related_words.word_id, related_words.related_word_id",
+  created_at: "2024-06-25 22:40:19",
+  related_words: [
+    { id: 3, word: "Attention Mechanism" },
+    { id: 28, word: "Regularization" },
+    { id: 1, word: "Tokenization" },
+    { id: 4, word: "Transformer Model" },
+    { id: 7, word: "Fine-Tuning" },
+    { id: 11, word: "Beam Search" },
+    { id: 29, word: "Hyperparameter Tuning" }
+  ],
+  explain_history: [],
 };
 
 export default function WordPage() {
@@ -41,9 +49,9 @@ export default function WordPage() {
   const [error, setError] = useState<string | null>(null)
 
   const [showDetails, setShowDetails] = useState(false)
-  const [isEditingDefinition, setIsEditingDefinition] = useState(false)
+  const [isEditingExplain, setIsEditingExplain] = useState(false)
   const [isEditingDetails, setIsEditingDetails] = useState(false)
-  const [editedDefinition, setEditedDefinition] = useState('')
+  const [editedExplain, setEditedExplain] = useState('')
   const [editedDetails, setEditedDetails] = useState('')
 
   useEffect(() => {
@@ -55,12 +63,12 @@ export default function WordPage() {
         }
         const data = await response.json()
         setWordData(data)
-        setEditedDefinition(data.definition)
+        setEditedExplain(data.explain)
         setEditedDetails(data.details)
       } catch (error) {
         console.error('Error fetching word data:', error)
         setWordData(defaultResponse)
-        setEditedDefinition(defaultResponse.definition)
+        setEditedExplain(defaultResponse.explain)
         setEditedDetails(defaultResponse.details)
       } finally {
         setLoading(false)
@@ -70,14 +78,14 @@ export default function WordPage() {
     fetchData()
   }, [id])
 
-  const handleEditDefinition = () => {
-    setIsEditingDefinition(true)
+  const handleEditExplain = () => {
+    setIsEditingExplain(true)
   }
 
-  const handleSaveDefinition = () => {
-    setIsEditingDefinition(false)
+  const handleSaveExplain = () => {
+    setIsEditingExplain(false)
     // Here you would typically update your app's state or make an API call
-    console.log("Saving new definition:", editedDefinition)
+    console.log("Saving new explain:", editedExplain)
   }
 
   const handleEditDetails = () => {
@@ -114,21 +122,21 @@ export default function WordPage() {
           <p className="text-sm text-muted-foreground">Last updated: {new Date().toLocaleString()}</p>
         </CardHeader>
         <CardContent>
-          {isEditingDefinition ? (
+          {isEditingExplain ? (
             <div className="flex flex-col gap-2">
               <Textarea
-                value={editedDefinition}
-                onChange={(e) => setEditedDefinition(e.target.value)}
+                value={editedExplain}
+                onChange={(e) => setEditedExplain(e.target.value)}
                 className="w-full"
                 maxLength={188}
               />
               <div className="text-sm text-muted-foreground">
-                {editedDefinition.length}/188 characters
+                {editedExplain.length}/188 characters
               </div>
-              <Button onClick={handleSaveDefinition}>Save Definition</Button>
+              <Button onClick={handleSaveExplain}>Save Explain</Button>
             </div>
           ) : (
-            <p className="text-lg mb-4">{editedDefinition}</p>
+            <p className="text-lg mb-4">{editedExplain}</p>
           )}
           <div className="flex justify-between items-center">
             <Button
@@ -143,22 +151,22 @@ export default function WordPage() {
               {showDetails ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
             </Button>
             <div className="flex gap-2">
-              <Button variant="outline" size="icon" onClick={handleEditDefinition}>
+              <Button variant="outline" size="icon" onClick={handleEditExplain}>
                 <Edit className="h-4 w-4" />
-                <span className="sr-only">Edit definition</span>
+                <span className="sr-only">Edit explain</span>
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="icon">
                     <History className="h-4 w-4" />
-                    <span className="sr-only">View definition history</span>
+                    <span className="sr-only">View explain history</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-[300px]">
-                  {wordData.definition_history.map((def, index) => (
+                  {wordData.explain_history.map((explain, index) => (
                     <DropdownMenuItem key={index} className="flex flex-col items-start">
-                      <span className="font-medium">{def.previous_definition}</span>
-                      <span className="text-sm text-muted-foreground">{def.changed_at}</span>
+                      <span className="font-medium">{explain.previous_explain}</span>
+                      <span className="text-sm text-muted-foreground">{explain.changed_at}</span>
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>

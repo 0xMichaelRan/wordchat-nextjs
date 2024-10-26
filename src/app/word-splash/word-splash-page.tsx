@@ -14,6 +14,19 @@ const colors = [
   'bg-green-500', 'bg-green-600', 'bg-green-700', 'bg-green-800', 'bg-green-900'
 ]
 
+const defaultData = [
+    { "id": 1, "word": "Machine Learning", "size": "0.584" },
+    { "id": 2, "word": "Deep Learning", "size": "0.645" },
+    { "id": 3, "word": "Neural Network", "size": "0.510" },
+    { "id": 4, "word": "Natural Language Processing", "size": "0.271" },
+    { "id": 5, "word": "Computer Vision", "size": "0.228" },
+    { "id": 6, "word": "Reinforcement Learning", "size": "0.577" },
+    { "id": 7, "word": "Generative AI", "size": "0.41" },
+    { "id": 8, "word": "Transformer", "size": "0.382" },
+    { "id": 9, "word": "GANs (Generative Adversarial Networks)", "size": "0.838" },
+    { "id": 10, "word": "Transfer Learning", "size": "0.57" }
+];
+
 export default function WordSplashPage() {
   const [words, setWords] = useState<Word[]>([]);
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 })
@@ -34,13 +47,14 @@ export default function WordSplashPage() {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words?limit=20&sort=random`);
         if (!response.ok) {
-          throw new Error('Failed to fetch words');
+          throw new Error('Network response was not ok');
         }
         const data = await response.json();
         setWords(data);
       } catch (error) {
-        console.error('Error fetching words:', error);
-        // You might want to set some default words here or show an error message
+        console.error('Fetch failed, using default data:', error);
+        const data = defaultData;
+        setWords(data);
       }
     };
 
