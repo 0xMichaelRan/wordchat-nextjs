@@ -137,6 +137,7 @@ export default function WordPage() {
 
   const handleEditExplain = () => {
     setIsEditingExplain(true);
+    setShowDetails(true); // Ensure details are shown
     setTimeout(() => {
       explainTextareaRef.current?.focus();
     }, 0); // Ensure focus is called after the state update
@@ -147,7 +148,7 @@ export default function WordPage() {
       console.log('Explain field cannot be empty'); // Optionally set an error message
       return; // Exit the function if the explain is empty
     }
-    
+
     setIsEditingExplain(false);
     updateWordData({ explain: editedExplain });
     console.log("Saving new explain:", editedExplain);
@@ -207,8 +208,8 @@ export default function WordPage() {
                 value={editedExplain}
                 onChange={(e) => setEditedExplain(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault(); // Prevent default behavior of Enter key (e.g., adding a new line)
+                  if ((e.ctrlKey && e.key === 'Enter') || (e.ctrlKey && e.key === 's')) {
+                    e.preventDefault(); // Prevent any default behavior
                     handleSaveExplain();
                   }
                 }}
@@ -216,7 +217,7 @@ export default function WordPage() {
                 maxLength={188}
               />
               <div className="text-sm text-muted-foreground">
-                {editedExplain.length}/188 characters
+                {editedExplain.length}/188 characters. Ctrl+Enter to save.
               </div>
               <Button onClick={handleSaveExplain}>Save Explain</Button>
             </div>
@@ -272,6 +273,12 @@ export default function WordPage() {
                     ref={detailsTextareaRef}
                     value={editedDetails || ''}
                     onChange={(e) => setEditedDetails(e.target.value)}
+                    onKeyDown={(e) => {
+                      if ((e.ctrlKey && e.key === 'Enter') || (e.ctrlKey && e.key === 's')) {
+                        e.preventDefault(); // Prevent any default behavior
+                        handleSaveDetails();
+                      }
+                    }}
                     className="w-full"
                     rows={8}
                   />
