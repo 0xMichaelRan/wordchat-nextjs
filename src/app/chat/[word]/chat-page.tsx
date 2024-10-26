@@ -8,10 +8,7 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import axios from 'axios'
 import { useParams } from 'next/navigation'
-import dotenv from 'dotenv'
 import Link from 'next/link'
-
-dotenv.config()
 
 const preGeneratedPrompts = [
   "Explain in simpler terms",
@@ -35,6 +32,7 @@ export default function ChatPage() {
       setCurrentWord(decodeURIComponent(word as string))
     }
   }, [word])
+
   const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState("")
 
@@ -43,10 +41,8 @@ export default function ChatPage() {
     setMessages(prev => [...prev, newMessage])
 
     try {
-      console.log('API_KEY is ', process.env.API_KEY)
-
-      const response = await axios.post('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
-        model: "glm-4-flash",
+      const response = await axios.post(process.env.NEXT_PUBLIC_API_ENDPOINT!, {
+        model: process.env.NEXT_PUBLIC_API_MODEL,
         messages: [
           {
             role: "user",
@@ -55,7 +51,7 @@ export default function ChatPage() {
         ]
       }, {
         headers: {
-          'Authorization': `Bearer cf70984ecc796d5501426cac8584b87c.4KycWRMVWBwZNtQW`,
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
           'Content-Type': 'application/json'
         }
       });
