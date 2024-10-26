@@ -105,7 +105,7 @@ export default function WordPage() {
           <div className="flex items-center justify-between w-full">
             <CardTitle className="text-3xl font-bold">{wordData.word}</CardTitle>
             <Button variant="outline" size="icon" asChild>
-              <Link href={`/chat?word=${wordData.word}`}>
+              <Link href={`/chat/${wordData.word}`}>
                 <MessageSquare className="h-4 w-4" />
                 <span className="sr-only">Chat about {wordData.word}</span>
               </Link>

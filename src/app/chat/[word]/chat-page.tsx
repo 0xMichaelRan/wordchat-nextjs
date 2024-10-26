@@ -1,21 +1,20 @@
 'use client'
 
-import { useState } from 'react'
-import { Send, ChevronDown } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Send } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-
-// This would typically come from your app's state or API
-const words = ["Serendipity", "Ephemeral", "Eloquent", "Mellifluous", "Surreptitious"]
+import axios from 'axios'
+import { useParams } from 'next/navigation'
 
 const preGeneratedPrompts = [
-  "Can you explain this word in simpler terms?",
-  "What are some common use cases for this word?",
-  "Can you use this word in a sentence?",
-  "What are some synonyms for this word?",
-  "What's the etymology of this word?"
+  "Explain in simpler terms",
+  "Common use cases",
+  "Synonyms",
+  "Etymology",
+  "Explain in Chinese",
 ]
 
 type Message = {
@@ -24,23 +23,53 @@ type Message = {
 }
 
 export default function ChatPage() {
-  const [currentWord, setCurrentWord] = useState(words[0])
+  const [currentWord, setCurrentWord] = useState('')
+  const { word } = useParams()
+
+  useEffect(() => {
+    if (word) {
+      setCurrentWord(decodeURIComponent(word as string))
+    }
+  }, [word])
   const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState("")
 
-  const sendMessage = (content: string) => {
+  const sendMessage = async (content: string) => {
     const newMessage: Message = { content, sender: 'user' }
     setMessages(prev => [...prev, newMessage])
-    // Here you would typically send the message to your AI backend
-    // and then add the AI's response to the messages
-    // For now, we'll just mock a response
-    setTimeout(() => {
+
+    try {
+      const response = await axios.post('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
+        model: "glm-4-flash",
+        messages: [
+          {
+            role: "user",
+            content: `Tell me about the word "${currentWord}" in relation to: ${content}`
+          }
+        ]
+      }, {
+        headers: {
+          'Authorization': `Bearer ${process.env.API_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
       const aiResponse: Message = {
-        content: `Here's a response about "${currentWord}" to: ${content}`,
+        content: response.data.choices[0].message.content.trim(),
         sender: 'ai'
       }
+      console.log('aiResponse', aiResponse)
+
       setMessages(prev => [...prev, aiResponse])
-    }, 1000)
+    } catch (error) {
+      console.error('Error fetching AI response:', error);
+      const errorMessage: Message = {
+        content: 'Sorry, there was an error processing your request.',
+        sender: 'ai'
+      }
+      setMessages(prev => [...prev, errorMessage])
+    }
+
     setInputMessage("")
   }
 
