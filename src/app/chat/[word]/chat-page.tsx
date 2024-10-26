@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Link, Send } from 'lucide-react'
+import { Send, ChevronLeft } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import axios from 'axios'
 import { useParams } from 'next/navigation'
 import dotenv from 'dotenv'
+import Link from 'next/link'
 
 dotenv.config()
 
@@ -88,8 +89,18 @@ export default function ChatPage() {
   return (
     <main className="flex-grow container mx-auto px-4 py-8 max-w-3xl flex flex-col">
       <Card className="mb-6">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-3xl font-bold">{currentWord}</CardTitle>
+        <CardHeader className="flex items-center justify-between">
+          <div className="flex items-center space-x-1">
+            <Button variant="ghost" size="sm" className="p-0.5" asChild>
+              <Link href={`/word/${currentWord}`}>
+                <ChevronLeft className="h-5 w-5" />
+                <span className="sr-only">Back to {currentWord}</span>
+              </Link>
+            </Button>
+            <CardTitle className="text-3xl font-bold px-2">
+              {currentWord}
+            </CardTitle>
+          </div>
         </CardHeader>
       </Card>
 

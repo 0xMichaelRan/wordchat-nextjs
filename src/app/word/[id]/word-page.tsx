@@ -116,7 +116,7 @@ export default function WordPage() {
             <p className="text-sm text-muted-foreground">{new Date().toLocaleString()}</p>
             <div className="flex space-x-2">
               <Button variant="outline" size="icon" asChild>
-                <Link href={`/chat/${wordData.word}`}>
+                <Link href={`/chat/${wordData.word}?id=${wordData.id}`}>
                   <MessageSquare className="h-4 w-4" />
                   <span className="sr-only">Chat about {wordData.word}</span>
                 </Link>
