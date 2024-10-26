@@ -184,13 +184,15 @@ export default function WordPage() {
 
   const handleGenerateExplain = async () => {
     setIsGenerating(true);
+    setIsEditingExplain(false);
+
     try {
       const response = await axios.post(process.env.NEXT_PUBLIC_API_ENDPOINT!, {
         model: process.env.NEXT_PUBLIC_API_MODEL,
         messages: [
           {
             role: "user",
-            content: `Generate a concise definition (120-170 characters) for the term "${wordData?.word}" in the context of AI and machine learning.`
+            content: `Generate a concise definition (120-170 characters) for the term "${wordData?.word}" in the context of AI and machine learning. Do not include the word or any other text before the definition.`
           }
         ]
       }, {
@@ -201,13 +203,12 @@ export default function WordPage() {
       });
 
       let generatedExplain = response.data.choices[0].message.content.trim();
-      
+
       // Remove double quotes if the text is quoted
       generatedExplain = generatedExplain.replace(/^"(.*)"$/, '$1');
-      
       // Remove the word and optional semicolon if they appear at the beginning
       generatedExplain = generatedExplain.replace(new RegExp(`^${wordData?.word}:?\\s*`, 'i'), '');
-    
+
       setEditedExplain(generatedExplain);
       updateWordData({ explain: generatedExplain });
     } catch (error) {
@@ -294,10 +295,10 @@ export default function WordPage() {
                 <Edit className="h-4 w-4" />
                 <span className="sr-only">Edit explain</span>
               </Button>
-              <Button 
-                variant="outline" 
-                size="icon" 
-                onClick={handleGenerateExplain} 
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleGenerateExplain}
                 disabled={isGenerating}
               >
                 <Sparkles className="h-4 w-4" />
