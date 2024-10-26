@@ -21,8 +21,6 @@ interface WordData {
   explain: string;
   details: string;
   created_at: string;
-  related_words: { id: number; word: string }[];
-  explain_history: { id: number | null; word_id: number; previous_explain: string; changed_at: string }[];
 }
 
 const defaultResponse: WordData = {
@@ -31,21 +29,36 @@ const defaultResponse: WordData = {
   explain: "A decoding strategy that selects the most probable word at each step in sequence generation.",
   details: "This site can’t be reached192.168.2.172 refused to connect. SQLITE_CONSTRAINT: UNIQUE constraint failed: This site can’t be reached192.168.2.172 refused to connect. SQLITE_CONSTRAINT: UNIQUE constraint failed This site can’t be reached192.168.2.172 refused to connect. SQLITE_CONSTRAINT: UNIQUE constraint failed",
   created_at: "2024-06-25 22:40:19",
-  related_words: [
-    { id: 3, word: "Attention Mechanism" },
-    { id: 28, word: "Regularization" },
-    { id: 1, word: "Tokenization" },
-    { id: 4, word: "Transformer Model" },
-    { id: 7, word: "Fine-Tuning" },
-    { id: 11, word: "Beam Search" },
-    { id: 29, word: "Hyperparameter Tuning" }
-  ],
-  explain_history: [],
 };
+
+const defaultRelatedWords = [
+  { id: 2, word: "Embedding" },
+  { id: 3, word: "Attention Mechanism" },
+  { id: 6, word: "GPT (Generative Pre-trained Transformer)" },
+  { id: 10, word: "Sequence-to-Sequence Model" },
+];
+
+const defaultExplainHistory = [
+  {
+    id: null,
+    word_id: 1,
+    previous_explain: "Initial explanation for word 3",
+    changed_at: "2023-10-03 12:00:00",
+  },
+  {
+    id: null,
+    word_id: 1,
+    previous_explain: "Initial explanation for word 3",
+    changed_at: "2023-10-03 12:00:00",
+  },
+];
+
 
 export default function WordPage() {
   const { id } = useParams()
   const [wordData, setWordData] = useState<WordData | null>(null)
+  const [relatedWords, setRelatedWords] = useState<{ id: number; word: string }[]>([])
+  const [explainHistory, setExplainHistory] = useState<{ id: number | null; word_id: number; previous_explain: string; changed_at: string }[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -66,11 +79,15 @@ export default function WordPage() {
         setWordData(data)
         setEditedExplain(data.explain)
         setEditedDetails(data.details)
+        setRelatedWords(data.related_words)
+        setExplainHistory(data.explain_history)
       } catch (error) {
         console.error('Error fetching word data:', error)
         setWordData(defaultResponse)
         setEditedExplain(defaultResponse.explain)
         setEditedDetails(defaultResponse.details)
+        setRelatedWords(defaultRelatedWords)
+        setExplainHistory(defaultExplainHistory)
       } finally {
         setLoading(false)
       }
@@ -198,7 +215,7 @@ export default function WordPage() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-[300px]">
-                  {wordData.explain_history.map((explain, index) => (
+                  {explainHistory.map((explain, index) => (
                     <DropdownMenuItem key={index} className="flex flex-col items-start">
                       <span className="font-medium">{explain.previous_explain}</span>
                       <span className="text-sm text-muted-foreground">{explain.changed_at}</span>
@@ -240,7 +257,7 @@ export default function WordPage() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-3 justify-center">
-            {wordData.related_words.map(({ id, word }) => {
+            {relatedWords.map(({ id, word }) => {
               // Since we don't have a correlation value, we'll use a fixed font size
               const fontSize = 16; // You can adjust this value as needed
               return (
