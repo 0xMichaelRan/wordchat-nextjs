@@ -76,6 +76,23 @@ export default function WordPage() {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (id === '-1') {
+        try {
+          const randomWordResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/random_empty_explain`);
+          if (!randomWordResponse.ok) {
+            throw new Error('Fetch random word failed');
+          }
+          const randomWordData = await randomWordResponse.json();
+          window.location.href = `/word/${randomWordData.id}`;
+          return;
+        } catch (error) {
+          console.error('Error fetching random word:', error);
+          setError('Failed to fetch random word');
+          setLoading(false);
+          return;
+        }
+      }
+
       try {
         const wordResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}`)
         if (!wordResponse.ok) {

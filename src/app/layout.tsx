@@ -33,6 +33,7 @@ export default function RootLayout({
                 <div className="container mx-auto flex justify-between items-center">
                   <Link href="/" className="text-2xl font-bold">WordChat</Link>
                   <div className="flex gap-4">
+                    <Link href="/word/-1" className="hover:underline">Random</Link>
                     <Link href="/config" className="hover:underline">Config</Link>
                   </div>
                 </div>
