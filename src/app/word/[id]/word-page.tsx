@@ -101,7 +101,7 @@ export default function WordPage() {
         const wordData = await wordResponse.json()
         setWordData(wordData)
         setEditedExplain(wordData.explain)
-        setEditedDetails(wordData.details || ''); // Use empty string if details is null
+        setEditedDetails(wordData.details || '')
 
         const relatedResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/related/${id}`)
         if (!relatedResponse.ok) {
@@ -117,6 +117,12 @@ export default function WordPage() {
         }
         const historyData = await historyResponse.json()
         setExplainHistory(historyData)
+
+        // Check if explain is empty and generate if needed
+        if (wordData.explain === "") {
+          console.log("Explain is empty, generating explain for", wordData.word)
+          handleGenerateExplain(wordData.word)
+        }
 
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -199,17 +205,18 @@ export default function WordPage() {
     console.log("Saving new details:", editedDetails);
   }
 
-  const handleGenerateExplain = async () => {
-    setIsGenerating(true);
-    setIsEditingExplain(false);
+  const handleGenerateExplain = async (word: string) => {
+    setIsGenerating(true)
+    setIsEditingExplain(false)
 
     try {
+      console.log("Generating explain for", word)
       const response = await axios.post(process.env.NEXT_PUBLIC_API_ENDPOINT!, {
         model: process.env.NEXT_PUBLIC_API_MODEL,
         messages: [
           {
             role: "user",
-            content: `Generate a concise definition (120-170 characters) for the term "${wordData?.word}" in the context of AI and machine learning. Do not include the word or any other text before the definition.`
+            content: `Generate a concise definition (120-170 characters) for the term "${word}" in the context of AI and machine learning. Do not include the word or any other text before the definition.`
           }
         ]
       }, {
@@ -224,7 +231,7 @@ export default function WordPage() {
       // Remove double quotes if the text is quoted
       generatedExplain = generatedExplain.replace(/^"(.*)"$/, '$1');
       // Remove the word and optional semicolon if they appear at the beginning
-      generatedExplain = generatedExplain.replace(new RegExp(`^${wordData?.word}:?\\s*`, 'i'), '');
+      generatedExplain = generatedExplain.replace(new RegExp(`^${word}:?\\s*`, 'i'), '');
 
       setEditedExplain(generatedExplain);
       updateWordData({ explain: generatedExplain });
@@ -315,7 +322,7 @@ export default function WordPage() {
               <Button
                 variant="outline"
                 size="icon"
-                onClick={handleGenerateExplain}
+                onClick={() => wordData && handleGenerateExplain(wordData.word)}
                 disabled={isGenerating}
               >
                 <Sparkles className="h-4 w-4" />
