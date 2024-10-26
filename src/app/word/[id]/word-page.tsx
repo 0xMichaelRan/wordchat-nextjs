@@ -137,9 +137,14 @@ export default function WordPage() {
   }
 
   const handleSaveExplain = () => {
-    setIsEditingExplain(false)
+    if (editedExplain.trim() === '') {
+      console.log('Explain field cannot be empty'); // Optionally set an error message
+      return; // Exit the function if the explain is empty
+    }
+    
+    setIsEditingExplain(false);
     updateWordData({ explain: editedExplain });
-    console.log("Saving new explain:", editedExplain)
+    console.log("Saving new explain:", editedExplain);
   }
 
   const handleEditDetails = () => {
@@ -147,9 +152,13 @@ export default function WordPage() {
   }
 
   const handleSaveDetails = () => {
-    setIsEditingDetails(false)
+    if (editedDetails.trim() === '') {
+      console.log('Details cannot be empty');
+      return;
+    }
+    setIsEditingDetails(false);
     updateWordData({ details: editedDetails });
-    console.log("Saving new details:", editedDetails)
+    console.log("Saving new details:", editedDetails);
   }
 
   if (loading) {
@@ -244,7 +253,7 @@ export default function WordPage() {
               {isEditingDetails ? (
                 <div className="flex flex-col gap-2">
                   <Textarea
-                    value={editedDetails || ''}  // Ensure value is a string
+                    value={editedDetails || ''}
                     onChange={(e) => setEditedDetails(e.target.value)}
                     className="w-full"
                     rows={8}
