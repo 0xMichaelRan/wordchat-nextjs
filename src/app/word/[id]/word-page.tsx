@@ -32,10 +32,10 @@ const defaultResponse: WordData = {
 };
 
 const defaultRelatedWords = [
-  { id: 2, word: "Embedding" },
-  { id: 3, word: "Attention Mechanism" },
-  { id: 6, word: "GPT (Generative Pre-trained Transformer)" },
-  { id: 10, word: "Sequence-to-Sequence Model" },
+  { related_word_id: 2, correlation: 0.8 },
+  { related_word_id: 3, correlation: 0.7 },
+  { related_word_id: 6, correlation: 0.6 },
+  { related_word_id: 10, correlation: 0.5 },
 ];
 
 const defaultExplainHistory = [
@@ -57,7 +57,7 @@ const defaultExplainHistory = [
 export default function WordPage() {
   const { id } = useParams()
   const [wordData, setWordData] = useState<WordData | null>(null)
-  const [relatedWords, setRelatedWords] = useState<{ id: number; word: string }[]>([])
+  const [relatedWords, setRelatedWords] = useState<{ related_word_id: number; correlation: number }[]>([])
   const [explainHistory, setExplainHistory] = useState<{ id: number | null; word_id: number; previous_explain: string; changed_at: string }[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -71,18 +71,32 @@ export default function WordPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}`)
-        if (!response.ok) {
+        const wordResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}`)
+        if (!wordResponse.ok) {
           throw new Error('Fetch failed')
         }
-        const data = await response.json()
-        setWordData(data)
-        setEditedExplain(data.explain)
-        setEditedDetails(data.details)
-        setRelatedWords(data.related_words)
-        setExplainHistory(data.explain_history)
+        const wordData = await wordResponse.json()
+        setWordData(wordData)
+        setEditedExplain(wordData.explain)
+        setEditedDetails(wordData.details)
+
+        const relatedResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/related/${id}`)
+        if (!relatedResponse.ok) {
+          throw new Error('Fetch related words failed')
+        }
+        const relatedData = await relatedResponse.json()
+        console.log("relatedData", relatedData)
+        setRelatedWords(relatedData)
+
+        const historyResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}/history`)
+        if (!historyResponse.ok) {
+          throw new Error('Fetch explain history failed')
+        }
+        const historyData = await historyResponse.json()
+        setExplainHistory(historyData)
+
       } catch (error) {
-        console.error('Error fetching word data:', error)
+        console.error('Error fetching data:', error)
         setWordData(defaultResponse)
         setEditedExplain(defaultResponse.explain)
         setEditedDetails(defaultResponse.details)
@@ -257,21 +271,17 @@ export default function WordPage() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-3 justify-center">
-            {relatedWords.map(({ id, word }) => {
-              // Since we don't have a correlation value, we'll use a fixed font size
-              const fontSize = 16; // You can adjust this value as needed
-              return (
-                <Link href={`/word/${id}`} key={id}>
-                  <Button
-                    variant="ghost"
-                    className={`px-2 py-1 hover:bg-primary hover:text-primary-foreground transition-colors`}
-                    style={{ fontSize: `${fontSize}px` }}
-                  >
-                    {word}
-                  </Button>
-                </Link>
-              );
-            })}
+            {relatedWords.map(({ related_word_id, correlation }, index) => (
+              <Link href={`/word/${related_word_id}`} key={`${related_word_id}-${index}`}>
+                <Button
+                  variant="ghost"
+                  className="px-2 py-1 hover:bg-primary hover:text-primary-foreground transition-colors"
+                  style={{ fontSize: '16px' }}
+                >
+                  {related_word_id} ({correlation.toFixed(2)})
+                </Button>
+              </Link>
+            ))}
           </div>
         </CardContent>
       </Card>
