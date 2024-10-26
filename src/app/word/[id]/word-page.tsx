@@ -134,7 +134,7 @@ export default function WordPage() {
               <Textarea
                 value={editedExplain}
                 onChange={(e) => setEditedExplain(e.target.value)}
-                className="w-full"
+                className="w-full h-32" // Added height class
                 maxLength={188}
               />
               <div className="text-sm text-muted-foreground">

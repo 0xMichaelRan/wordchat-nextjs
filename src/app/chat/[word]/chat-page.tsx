@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import axios from 'axios'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 const preGeneratedPrompts = [
@@ -25,13 +25,19 @@ type Message = {
 
 export default function ChatPage() {
   const [currentWord, setCurrentWord] = useState('')
+  const [wordId, setWordId] = useState<string | null>(null)
   const { word } = useParams()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     if (word) {
       setCurrentWord(decodeURIComponent(word as string))
     }
-  }, [word])
+    const id = searchParams.get('id')
+    if (id) {
+      setWordId(id)
+    }
+  }, [word, searchParams])
 
   const [messages, setMessages] = useState<Message[]>([])
   const [inputMessage, setInputMessage] = useState("")
@@ -88,7 +94,7 @@ export default function ChatPage() {
         <CardHeader className="flex items-center justify-between">
           <div className="flex items-center space-x-1">
             <Button variant="ghost" size="sm" className="p-0.5" asChild>
-              <Link href={`/word/${currentWord}`}>
+              <Link href={`/word/${wordId}`}>
                 <ChevronLeft className="h-5 w-5" />
                 <span className="sr-only">Back to {currentWord}</span>
               </Link>
