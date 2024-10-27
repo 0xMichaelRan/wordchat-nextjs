@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { ChevronDown, ChevronUp, Edit, History, MessageSquare, GitMerge, Sparkles, X } from 'lucide-react'
+import { ChevronDown, ChevronUp, Edit, History, MessageSquare, GitMerge, Sparkles, X, Scissors } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -28,7 +28,7 @@ const defaultResponse: WordData = {
   id: 12,
   word: "Greedy Decoding",
   explain: "A decoding strategy that selects the most probable word at each step in sequence generation.",
-  details: "Move chat button to the same line as last updated timestamp, and remove the word \"Last Updated\", just keep the date and time. Also add a merge button alongside the chat button. Make the border more bold and shaded., and add apply tag style border to related words. I'll modify the component to move the chat button to the same line as the timestamp, remove \"Last Updated\", add a merge button, make the border more bold and shaded, and apply a tag style border to related words. Here's the updated component.",
+  details: "Move chat button to the same line as last updated timestamp, and remove the word \"Last Updated\", just keep the date and time. Also add a merge button alongside the chat button. Make the border bold and shaded., and add apply tag style border to related words. I'll modify the component to move the chat button to the same line as the timestamp, remove \"Last Updated\", add a merge button, make the border bold and shaded, and apply a tag style border to related words. Here's the updated component.",
   created_at: "2024-06-25 22:40:19",
 };
 
@@ -73,6 +73,19 @@ export default function WordPage() {
   const explainTextareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Add state for split mode
+  const [splitMode, setSplitMode] = useState(false);
+  const [selectedWords, setSelectedWords] = useState<string[]>([]);
+
+  // Add this function to handle word selection
+  const handleWordSelect = (word: string) => {
+    setSelectedWords(prev => 
+      prev.includes(word) 
+        ? prev.filter(w => w !== word)
+        : [...prev, word]
+    );
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -263,6 +276,15 @@ export default function WordPage() {
           <div className="flex items-center justify-between w-full">
             <p className="text-sm text-muted-foreground">{new Date().toLocaleString()}</p>
             <div className="flex space-x-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setSplitMode(!splitMode)}
+                className="h-8 w-8"
+              >
+                <span className="font-bold text-xs">A|B</span>
+                <span className="sr-only">Split Text</span>
+              </Button>
               <Button variant="outline" size="icon" asChild>
                 <Link href={`/chat/${wordData.word}?id=${wordData.id}`}>
                   <MessageSquare className="h-4 w-4" />
@@ -298,13 +320,32 @@ export default function WordPage() {
               <Button onClick={handleSaveExplain}>Save Explain</Button>
             </div>
           ) : (
-            <p className="text-lg mb-4">
-              {editedExplain.split(' ').map((word, index) =>
-                ['Tokenization', 'Transformer', 'Fine-Tuning', 'Beam'].includes(word) ?
-                  <Badge key={index} variant="outline" className="mx-1">{word}</Badge> :
-                  ` ${word} `
+            <div>
+              {editedExplain.split(' ').map((word, index) => (
+                splitMode ? (
+                  <Button
+                    key={index}
+                    variant={selectedWords.includes(word) ? "default" : "outline"}
+                    onClick={() => handleWordSelect(word)}
+                    size="sm"
+                    className="m-1"
+                  >
+                    {word}
+                  </Button>
+                ) : (
+                  <span key={index}>{word + ' '}</span>
+                )
+              ))}
+              
+              {selectedWords.length > 0 && splitMode && (
+                <Link 
+                  href={`/chat/${encodeURIComponent(selectedWords.join(' '))}?id=${wordData.id}`}
+                  className="mt-4 p-4 border-2 border-primary rounded-lg cursor-pointer hover:bg-muted text-center block"
+                >
+                  <p className="font-medium">{selectedWords.join(' ')}</p>
+                </Link>
               )}
-            </p>
+            </div>
           )}
           <div className="flex justify-between items-center">
             <Button
