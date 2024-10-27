@@ -93,12 +93,14 @@ export default function ChatPage() {
       <Card className="mb-6">
         <CardHeader className="flex items-center justify-between">
           <div className="flex items-center space-x-1">
+          {wordId && (
             <Button variant="ghost" size="sm" className="p-0.5" asChild>
               <Link href={`/word/${wordId}`}>
                 <ChevronLeft className="h-5 w-5" />
                 <span className="sr-only">Back to {currentWord}</span>
               </Link>
-            </Button>
+              </Button>
+            )}
             <CardTitle className="text-3xl font-bold px-2">
               {currentWord}
             </CardTitle>

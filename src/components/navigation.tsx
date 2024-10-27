@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Menu, X, Search } from 'lucide-react'
 import { Button } from "@/components/ui/button"
@@ -14,13 +15,25 @@ const navItems = [
 ]
 
 export function Navigation() {
+    const router = useRouter()
     const [isMenuOpen, setIsMenuOpen] = useState(false)
+    const [isSearchVisible, setIsSearchVisible] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault()
-        console.log('Searching for:', searchTerm)
-        // Implement search functionality here
+        if (searchTerm.trim()) {
+            router.push(`/chat/${encodeURIComponent(searchTerm.trim())}`)
+            setSearchTerm('')
+            setIsSearchVisible(false)
+        }
+    }
+
+    const handleSearchKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Escape') {
+            setIsSearchVisible(false)
+            setSearchTerm('')
+        }
     }
 
     return (
@@ -43,34 +56,58 @@ export function Navigation() {
                                 {item.name}
                             </Link>
                         ))}
-                        <form onSubmit={handleSearch} className="flex items-center">
-                            <Input
-                                type="search"
-                                placeholder="Search..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="mr-2 w-32 bg-primary-foreground text-primary"
-                            />
-                            <Button type="submit" variant="secondary" size="icon">
-                                <Search className="h-4 w-4" />
-                                <span className="sr-only">Search</span>
-                            </Button>
-                        </form>
+                        <div className="flex items-center">
+                            {isSearchVisible ? (
+                                <form onSubmit={handleSearch} className="flex items-center">
+                                    <Input
+                                        type="search"
+                                        placeholder="Type and press Enter..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        onKeyDown={handleSearchKeyDown}
+                                        className="w-48 bg-primary-foreground text-primary"
+                                        autoFocus
+                                    />
+                                </form>
+                            ) : (
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => setIsSearchVisible(true)}
+                                    className="hover:bg-primary-foreground hover:text-primary"
+                                >
+                                    <Search className="h-4 w-4" />
+                                    <span className="sr-only">Search</span>
+                                </Button>
+                            )}
+                        </div>
                     </div>
                     <div className="md:hidden flex items-center">
-                        <form onSubmit={handleSearch} className="flex items-center mr-2">
-                            <Input
-                                type="search"
-                                placeholder="Search..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-24 bg-primary-foreground text-primary"
-                            />
-                            <Button type="submit" variant="secondary" size="icon" className="ml-2">
-                                <Search className="h-4 w-4" />
-                                <span className="sr-only">Search</span>
-                            </Button>
-                        </form>
+                        <div className="flex items-center mr-2">
+                            {isSearchVisible ? (
+                                <form onSubmit={handleSearch} className="flex items-center">
+                                    <Input
+                                        type="search"
+                                        placeholder="Type and press Enter..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        onKeyDown={handleSearchKeyDown}
+                                        className="w-32 bg-primary-foreground text-primary"
+                                        autoFocus
+                                    />
+                                </form>
+                            ) : (
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => setIsSearchVisible(true)}
+                                    className="hover:bg-primary-foreground hover:text-primary"
+                                >
+                                    <Search className="h-4 w-4" />
+                                    <span className="sr-only">Search</span>
+                                </Button>
+                            )}
+                        </div>
                         <Button
                             variant="ghost"
                             size="icon"
