@@ -79,19 +79,17 @@ export default function WordWall() {
               const fontSize = Math.max(14, Math.min(30, parseFloat(word.size) * 30))
               const minWidth = 120
               const maxWidth = 300
-              const width = Math.max(minWidth, Math.min(maxWidth, word.word.length * fontSize * 0.8))
-              const height = Math.max(60, fontSize * 2.5)
-
+                
               return (
                 <Link
                   key={word.id}
                   href={`/word/${word.id}`}
                   className="bg-accent text-accent-foreground shadow-md flex items-center justify-center text-center transition-all duration-300 ease-in-out hover:scale-105 cursor-pointer"
                   style={{
-                    width: `${width}px`,
-                    height: `${height}px`,
+                    width: `${Math.max(fontSize * 6, word.word.length * fontSize * 0.66)}px`,
+                    height: `${fontSize * 3}px`,
                     fontSize: `${fontSize}px`,
-                    borderRadius: `${Math.min(height / 2, 20)}px`,
+                    borderRadius: `${fontSize * 0.88}px`,
                     padding: `${fontSize / 2}px`,
                   }}
                 >
