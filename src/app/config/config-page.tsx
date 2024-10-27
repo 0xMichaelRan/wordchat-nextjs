@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { Trash2, RefreshCw } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -24,7 +23,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
-
+import { useConfig } from '@/hooks/useConfig'
+import { toast } from 'sonner'
 
 // Add this constant for the API endpoints
 const API_ENDPOINTS = [
@@ -34,11 +34,12 @@ const API_ENDPOINTS = [
 ]
 
 export default function ConfigPage() {
-  const [baseUrl, setBaseUrl] = useState(process.env.NEXT_PUBLIC_API_ENDPOINT)
-  const [apiKey, setApiKey] = useState(process.env.NEXT_PUBLIC_API_KEY)
-  const [model, setModel] = useState("gpt-3.5-turbo")
-  const [temperature, setTemperature] = useState([0.7])
-  const [maxTokens, setMaxTokens] = useState("150")
+  const { config, saveConfig } = useConfig();
+  const [baseUrl, setBaseUrl] = useState(config.baseUrl)
+  const [apiKey, setApiKey] = useState(config.apiKey)
+  const [model, setModel] = useState(config.model)
+  const [temperature, setTemperature] = useState([config.temperature])
+  const [maxTokens, setMaxTokens] = useState(String(config.maxTokens))
   const [words, setWords] = useState([
     { id: 1, word: "Serendipity", definition: "The occurrence and development of events by chance in a happy or beneficial way." },
     { id: 2, word: "Ephemeral", definition: "Lasting for a very short time." },
@@ -63,17 +64,26 @@ export default function ConfigPage() {
   }
 
   const handleSaveConfig = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Here you would typically save the configuration to your app's state or make an API call
-    console.log("Saving configuration:", { baseUrl, apiKey, model, temperature: temperature[0], maxTokens })
+    e.preventDefault();
+    const newConfig = {
+      baseUrl,
+      apiKey,
+      model,
+      temperature: temperature[0],
+      maxTokens: Number(maxTokens)
+    };
+    
+    saveConfig(newConfig);
+    // Optional: Show success message
+    toast.success('Configuration saved successfully');
   }
 
   const handleRefreshModels = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`${baseUrl}/models`, {
+      const response = await fetch(`${config.baseUrl}/models`, {
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
+          'Authorization': `Bearer ${config.apiKey}`,
           'Content-Type': 'application/json'
         }
       });

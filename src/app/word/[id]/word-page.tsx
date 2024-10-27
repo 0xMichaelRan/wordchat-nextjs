@@ -227,7 +227,7 @@ export default function WordPage() {
     try {
       console.log("Generating explain for", word)
       const response = await axios.post(process.env.NEXT_PUBLIC_API_ENDPOINT! + '/chat/completions', {
-        model: process.env.NEXT_PUBLIC_API_MODEL,
+        model: process.env.NEXT_PUBLIC_MODEL,
         messages: [
           {
             role: "user",
