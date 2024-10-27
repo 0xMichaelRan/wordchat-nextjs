@@ -1,8 +1,8 @@
-import WordSplashPage from "./word/splash/word-splash-page";
+import WordWall from "./word/splash/word-wall";
 
 export default function Home() {
     return (
-      <WordSplashPage />
+      <WordWall />
     );
   }
   
