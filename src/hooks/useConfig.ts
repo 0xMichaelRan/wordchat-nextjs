@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 
 interface Config {
+    knowledgeBase: string;
     baseUrl: string;
     apiKey: string;
     model: string;
@@ -8,26 +9,34 @@ interface Config {
     maxTokens: number;
 }
 
+const defaultConfig: Config = {
+    knowledgeBase: "LLM",
+    baseUrl: "https://api.deepbricks.ai/v1",
+    apiKey: "",
+    model: "gpt-3.5-turbo",
+    temperature: 0.7,
+    maxTokens: 150,
+};
+
 export function useConfig() {
     const [config, setConfig] = useState<Config>(() => {
         // Try to load from localStorage on initial render
         if (typeof window !== 'undefined') {
-            const saved = localStorage.getItem('apiConfig');
-            return saved ? JSON.parse(saved) : {
-                baseUrl: process.env.NEXT_PUBLIC_API_ENDPOINT,
-                apiKey: process.env.NEXT_PUBLIC_API_KEY,
-                model: "gpt-3.5-turbo",
-                temperature: 0.37,
-                maxTokens: 160
-            };
+            const storedConfig = localStorage.getItem('config');
+            return storedConfig ? JSON.parse(storedConfig) : defaultConfig;
         }
-        return null;
+        return defaultConfig;
     });
 
-    const saveConfig = (newConfig: Config) => {
-        setConfig(newConfig);
-        localStorage.setItem('apiConfig', JSON.stringify(newConfig));
-    };
+    const saveConfig = useCallback((newConfig: Partial<Config>) => {
+        setConfig(prevConfig => {
+            const updatedConfig = { ...prevConfig, ...newConfig };
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('config', JSON.stringify(updatedConfig));
+            }
+            return updatedConfig;
+        });
+    }, []);
 
     return { config, saveConfig };
 }
