@@ -1,20 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { Trash2, RefreshCw } from 'lucide-react'
+import { RefreshCw } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import {
   Select,
   SelectContent,
@@ -40,28 +31,8 @@ export default function ConfigPage() {
   const [model, setModel] = useState(config.model)
   const [temperature, setTemperature] = useState([config.temperature])
   const [maxTokens, setMaxTokens] = useState(String(config.maxTokens))
-  const [words, setWords] = useState([
-    { id: 1, word: "Serendipity", definition: "The occurrence and development of events by chance in a happy or beneficial way." },
-    { id: 2, word: "Ephemeral", definition: "Lasting for a very short time." },
-    { id: 3, word: "Eloquent", definition: "Fluent or persuasive in speaking or writing." },
-  ])
-  const [newWord, setNewWord] = useState("")
-  const [newDefinition, setNewDefinition] = useState("")
   const [models, setModels] = useState(["gpt-3.5-turbo", "gpt-4", "text-davinci-003"])
   const [isLoading, setIsLoading] = useState(false)
-
-  const handleAddWord = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (newWord && newDefinition) {
-      setWords([...words, { id: Date.now(), word: newWord, definition: newDefinition }])
-      setNewWord("")
-      setNewDefinition("")
-    }
-  }
-
-  const handleDeleteWord = (id: number) => {
-    setWords(words.filter(word => word.id !== id))
-  }
 
   const handleSaveConfig = (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,7 +47,7 @@ export default function ConfigPage() {
     saveConfig(newConfig);
     // Optional: Show success message
     toast.success('Configuration saved.', {
-      description: "Please refresh the page to see the changes.",
+      description: "",
       action: {
         label: "Refresh",
         onClick: () => window.location.reload()
@@ -182,71 +153,17 @@ export default function ConfigPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="maxTokens">Max Tokens</Label>
-                <Input
+                <Label htmlFor="maxTokens">Max Tokens: {maxTokens}</Label>
+                <Slider
                   id="maxTokens"
-                  type="number"
-                  min="1"
-                  value={maxTokens}
-                  onChange={(e) => setMaxTokens(e.target.value)}
+                  min={50}
+                  max={180}
+                  step={5}
+                  value={[Number(maxTokens)]}
+                  onValueChange={(value) => setMaxTokens(String(value[0]))}
                 />
               </div>
               <Button type="submit">Save API Settings</Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        <h1 className="text-3xl font-bold mb-8">Word List</h1>
-        <Card>
-          <CardHeader>
-            <CardTitle>Word List</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Word</TableHead>
-                  <TableHead>Definition</TableHead>
-                  <TableHead className="w-[100px]">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {words.map((word) => (
-                  <TableRow key={word.id}>
-                    <TableCell>{word.word}</TableCell>
-                    <TableCell>{word.definition}</TableCell>
-                    <TableCell>
-                      <Button variant="ghost" size="sm" onClick={() => handleDeleteWord(word.id)}>
-                        <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">Delete {word.word}</span>
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-
-            <form onSubmit={handleAddWord} className="mt-4 space-y-4">
-              <div>
-                <Label htmlFor="newWord">New Word</Label>
-                <Input
-                  id="newWord"
-                  value={newWord}
-                  onChange={(e) => setNewWord(e.target.value)}
-                  placeholder="Enter a new word"
-                />
-              </div>
-              <div>
-                <Label htmlFor="newDefinition">Definition</Label>
-                <Textarea
-                  id="newDefinition"
-                  value={newDefinition}
-                  onChange={(e) => setNewDefinition(e.target.value)}
-                  placeholder="Enter the definition"
-                  rows={3}
-                />
-              </div>
-              <Button type="submit">Add Word</Button>
             </form>
           </CardContent>
         </Card>
