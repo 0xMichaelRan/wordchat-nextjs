@@ -75,7 +75,13 @@ export default function ConfigPage() {
     
     saveConfig(newConfig);
     // Optional: Show success message
-    toast.success('Configuration saved successfully');
+    toast.success('Configuration saved.', {
+      description: "Please refresh the page to see the changes.",
+      action: {
+        label: "Refresh",
+        onClick: () => window.location.reload()
+      }
+    });
   }
 
   const handleRefreshModels = async () => {

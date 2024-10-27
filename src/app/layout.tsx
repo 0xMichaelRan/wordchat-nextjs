@@ -46,8 +46,8 @@ export default function RootLayout({
           <div className="pt-16"> {/* Add padding to prevent content from being hidden behind the navbar */}
             {children}
           </div>
-          <Toaster />
-        </div>
+          <Toaster richColors toastOptions={{}} />
+          </div>
       </body>
     </html>
   );
