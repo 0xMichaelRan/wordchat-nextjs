@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { Menu, X, Search } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useConfig } from '@/hooks/useConfig'
 
 const navItems = [
     { name: 'Home', href: '/' },
@@ -16,6 +17,7 @@ const navItems = [
 
 export function Navigation() {
     const router = useRouter()
+    const { config } = useConfig()
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [isSearchVisible, setIsSearchVisible] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
@@ -43,7 +45,9 @@ export function Navigation() {
                     <div className="flex items-center">
                         <div className="flex items-center gap-2">
                             <Link href="/" className="text-2xl font-bold">WordChat</Link>
-                            <span className="text-sm font-medium bg-white text-black px-2 py-0.5 rounded-md">LLM</span>
+                            <span className="text-sm font-medium bg-white text-black px-2 py-0.5 rounded-md">
+                                {config.knowledgeBase || 'LLM'}
+                            </span>
                         </div>
                     </div>
                     <div className="hidden md:flex items-center space-x-4">

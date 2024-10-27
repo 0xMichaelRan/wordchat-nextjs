@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -29,6 +29,11 @@ export default function ConfigPage() {
   const { config, saveConfig } = useConfig()
   const [models, setModels] = useState(DEFAULT_MODELS)
   const [isLoading, setIsLoading] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleSaveConfig = useCallback((newConfig: Partial<typeof config>) => {
     saveConfig(newConfig)
@@ -64,12 +69,16 @@ export default function ConfigPage() {
     }
   }, [config.baseUrl, config.apiKey])
 
+  if (!mounted) {
+    return null // or a loading skeleton
+  }
+
   return (
     <main className="flex-grow container mx-auto px-4 py-8 max-w-4xl">
       <h1 className="text-3xl font-bold mb-8">Knowledge Base</h1>
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle>Knowledge Base Configuration</CardTitle>
+          <CardTitle>Knowledge Base</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -84,7 +93,7 @@ export default function ConfigPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="LLM">LLM</SelectItem>
-                  <SelectItem value="Univ">Univ</SelectItem>
+                  <SelectItem value="大学">大学</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -159,6 +168,7 @@ export default function ConfigPage() {
                 step={0.1}
                 value={[config.temperature]}
                 onValueChange={([value]) => handleSaveConfig({ temperature: value })}
+                className="py-4"
               />
             </div>
             <div>
@@ -170,6 +180,7 @@ export default function ConfigPage() {
                 step={50}
                 value={[config.maxTokens]}
                 onValueChange={([value]) => handleSaveConfig({ maxTokens: value })}
+                className="py-4"
               />
             </div>
           </form>
