@@ -47,7 +47,7 @@ export default function ChatPage() {
     setMessages(prev => [...prev, newMessage])
 
     try {
-      const response = await axios.post(process.env.NEXT_PUBLIC_API_ENDPOINT!, {
+      const response = await axios.post(process.env.NEXT_PUBLIC_API_ENDPOINT! + '/chat/completions', {
         model: process.env.NEXT_PUBLIC_API_MODEL,
         messages: [
           {

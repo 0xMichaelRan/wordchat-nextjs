@@ -25,9 +25,17 @@ import {
 } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
 
+
+// Add this constant for the API endpoints
+const API_ENDPOINTS = [
+  "https://api.groq.com/openai/v1",
+  "https://api.deepbricks.ai/v1",
+  "https://open.bigmodel.cn/api/paas/v4",
+]
+
 export default function ConfigPage() {
-  const [baseUrl, setBaseUrl] = useState("https://api.openai.com/v1")
-  const [apiKey, setApiKey] = useState("")
+  const [baseUrl, setBaseUrl] = useState(process.env.NEXT_PUBLIC_API_ENDPOINT)
+  const [apiKey, setApiKey] = useState(process.env.NEXT_PUBLIC_API_KEY)
   const [model, setModel] = useState("gpt-3.5-turbo")
   const [temperature, setTemperature] = useState([0.7])
   const [maxTokens, setMaxTokens] = useState("150")
@@ -39,6 +47,7 @@ export default function ConfigPage() {
   const [newWord, setNewWord] = useState("")
   const [newDefinition, setNewDefinition] = useState("")
   const [models, setModels] = useState(["gpt-3.5-turbo", "gpt-4", "text-davinci-003"])
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleAddWord = (e: React.FormEvent) => {
     e.preventDefault()
@@ -60,17 +69,33 @@ export default function ConfigPage() {
   }
 
   const handleRefreshModels = async () => {
-    // This is a mock function. In a real application, you would make an API call to fetch the models.
-    console.log("Refreshing models for base URL:", baseUrl)
-    // Simulating an API call
-    setTimeout(() => {
-      setModels(["gpt-3.5-turbo", "gpt-4", "text-davinci-003", "gpt-3.5-turbo-16k"])
-    }, 1000)
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${baseUrl}/models`, {
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch models');
+      }
+      
+      const data = await response.json();
+      console.log("data", data);
+      
+      setModels(data.data.map((model: any) => model.id));
+    } catch (error) {
+      console.error('Failed to refresh models:', error);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
       <main className="flex-grow container mx-auto px-4 py-8 max-w-4xl">
-        <h1 className="text-3xl font-bold mb-8">Configuration</h1>
+        <h1 className="text-3xl font-bold mb-8">API Keys</h1>
 
         <Card className="mb-8">
           <CardHeader>
@@ -79,29 +104,42 @@ export default function ConfigPage() {
           <CardContent>
             <form onSubmit={handleSaveConfig} className="space-y-4">
               <div>
-                <Label htmlFor="baseUrl">Base URL</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="baseUrl"
-                    value={baseUrl}
-                    onChange={(e) => setBaseUrl(e.target.value)}
-                    placeholder="Enter the base URL for the API"
-                  />
-                  <Button type="button" onClick={handleRefreshModels} className="flex-shrink-0">
-                    <RefreshCw className="h-4 w-4 mr-2" />
-                    Refresh Models
-                  </Button>
-                </div>
-              </div>
-              <div>
                 <Label htmlFor="apiKey">API Key</Label>
                 <Input
                   id="apiKey"
-                  type="password"
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
                   placeholder="Enter your API key"
                 />
+              </div>
+              <div className="flex gap-2">
+                <Select
+                  value={baseUrl}
+                  onValueChange={(value) => setBaseUrl(value)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select API endpoint" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {API_ENDPOINTS.map((endpoint) => (
+                      <SelectItem 
+                        key={endpoint} 
+                        value={endpoint}
+                      >
+                        {endpoint}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleRefreshModels}
+                  disabled={!baseUrl || isLoading}
+                >
+                  <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                </Button>
               </div>
               <div>
                 <Label htmlFor="model">Model</Label>
@@ -142,6 +180,7 @@ export default function ConfigPage() {
           </CardContent>
         </Card>
 
+        <h1 className="text-3xl font-bold mb-8">Word List</h1>
         <Card>
           <CardHeader>
             <CardTitle>Word List</CardTitle>

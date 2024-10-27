@@ -31,7 +31,10 @@ export default function RootLayout({
       >    <div className="min-h-screen flex flex-col">
               <nav className="bg-primary text-primary-foreground p-4 fixed top-0 left-0 right-0 z-50">
                 <div className="container mx-auto flex justify-between items-center">
-                  <Link href="/" className="text-2xl font-bold">WordChat</Link>
+                  <div className="flex items-center gap-2">
+                    <Link href="/" className="text-2xl font-bold">WordChat</Link>
+                    <span className="text-sm font-medium bg-white text-black px-2 py-0.5 rounded-md">LLM</span>
+                  </div>
                   <div className="flex gap-4">
                     <Link href="/word/-1" className="hover:underline">Random</Link>
                     <Link href="/config" className="hover:underline">Config</Link>

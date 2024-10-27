@@ -41,3 +41,6 @@ Done:
 To do:
 
 * remove empty explain from history SQL query
+* support both word and abbreviation in the DB
+* add search, add and config button to navbar
+* insert word from chat page
