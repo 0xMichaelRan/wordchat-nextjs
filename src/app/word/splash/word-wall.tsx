@@ -13,18 +13,10 @@ interface Word {
   size: string
 }
 
-const navItems = [
-  { name: 'Home', href: '/' },
-  { name: 'Word Wall', href: '/word-wall' },
-  { name: 'About', href: '/about' },
-  { name: 'Contact', href: '/contact' },
-]
-
 const DEFAULT_WORDS: Word[] = [
   { id: 1, word: "Machine Learning", size: "0.8" },
   { id: 2, word: "Neural Networks", size: "0.7" },
   { id: 3, word: "Deep Learning", size: "0.9" },
-  { id: 4, word: "AI", size: "0.6" },
   { id: 5, word: "Data Science", size: "0.75" },
   { id: 6, word: "Python", size: "0.5" },
   { id: 7, word: "TensorFlow", size: "0.65" },
@@ -43,16 +35,14 @@ const DEFAULT_WORDS: Word[] = [
 
 export default function WordWall() {
   const { config } = useConfig()
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [words, setWords] = useState<Word[]>([])
-  const [searchTerm, setSearchTerm] = useState('')
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchWords = async () => {
       try {
         setIsLoading(true)
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words?limit=13&sort=latest`)
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words?limit=20&sort=random`)
         if (!response.ok) {
           throw new Error('Failed to fetch words')
         }
@@ -77,92 +67,8 @@ export default function WordWall() {
     }
   }, [config.baseUrl])
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log('Searching for:', searchTerm)
-    // Implement search functionality here
-  }
-
   return (
-    <div className="min-h-screen bg-background">
-      <nav className="bg-primary text-primary-foreground shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-            <div className="flex items-center gap-2">
-                <Link href="/" className="text-2xl font-bold">WordChat</Link>
-                <span className="text-sm font-medium bg-white text-black px-2 py-0.5 rounded-md">LLM</span>
-              </div>
-            </div>
-            <div className="hidden md:flex items-center space-x-4">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="px-3 py-2 rounded-md text-sm font-medium hover:bg-primary-foreground hover:text-primary"
-                >
-                  {item.name}
-                </Link>
-              ))}
-              <form onSubmit={handleSearch} className="flex items-center">
-                <Input
-                  type="search"
-                  placeholder="Search..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="mr-2 w-32 bg-primary-foreground text-primary"
-                />
-                <Button type="submit" variant="secondary" size="icon">
-                  <Search className="h-4 w-4" />
-                  <span className="sr-only">Search</span>
-                </Button>
-              </form>
-            </div>
-            <div className="md:hidden flex items-center">
-              <form onSubmit={handleSearch} className="flex items-center mr-2">
-                <Input
-                  type="search"
-                  placeholder="Search..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-24 bg-primary-foreground text-primary"
-                />
-                <Button type="submit" variant="secondary" size="icon" className="ml-2">
-                  <Search className="h-4 w-4" />
-                  <span className="sr-only">Search</span>
-                </Button>
-              </form>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                aria-label="Toggle menu"
-              >
-                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </Button>
-            </div>
-          </div>
-        </div>
-        {isMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="block px-3 py-2 rounded-md text-base font-medium hover:bg-primary-foreground hover:text-primary"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-      </nav>
-
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold mb-8">Word Wall</h1>
         {isLoading ? (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -196,6 +102,5 @@ export default function WordWall() {
           </div>
         )}
       </main>
-    </div>
   )
 }
