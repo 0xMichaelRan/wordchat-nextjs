@@ -1,5 +1,3 @@
-## Getting Started
-
 Run the development server:
 
 ```bash
@@ -42,5 +40,7 @@ Done:
 
 To do:
 
+* [2] Do not query Pinecone directly, but use DB as cache
+* [1] change 'pinecone_status' to 'edit_since_embedding'
 * [3] Support both word and abbreviation in the DB
 * [1] insert word from chat page
