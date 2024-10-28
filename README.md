@@ -1,3 +1,9 @@
+# NextJS WordChat
+
+Favicon is from https://icon-icons.com/icon/chat-bubble-message-conversation/264208
+
+## Run
+
 Run the development server:
 
 ```bash

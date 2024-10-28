@@ -13,8 +13,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
 import axios from 'axios'
+import { motion } from 'framer-motion'
 
 interface WordData {
   id: number;
@@ -275,7 +275,31 @@ export default function WordPage() {
 
   // Loading state
   if (loading) {
-    return <div>Loading...</div>
+    return (
+      <div className="fixed inset-0 bg-gradient-to-br from-purple-700 via-blue-800 to-cyan-900 flex items-center justify-center">
+        <motion.div
+          className="text-white text-4xl md:text-6xl font-bold"
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <motion.span
+            className="inline-block"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          >
+            ⚙️
+          </motion.span>
+          <motion.span
+            className="ml-4"
+            animate={{ opacity: [1, 0.5, 1] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+          >
+            Loading...
+          </motion.span>
+        </motion.div>
+      </div>
+    )
   }
 
   // Error state
