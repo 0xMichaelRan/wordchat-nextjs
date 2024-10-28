@@ -45,7 +45,7 @@ export default function WordSplashPage() {
   useEffect(() => {
     const fetchWords = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words?limit=20&sort=popular`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words?limit=20&sort=most-edited`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }

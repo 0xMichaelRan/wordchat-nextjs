@@ -10,21 +10,21 @@ const aiConcepts = [
   { id: 4, word: "Transformer Model", size: "0.80" },
   { id: 5, word: "BERT (Bidirectional Encoder Representations from Transformers)", size: "0.72" },
   { id: 6, word: "GPT (Generative Pre-trained Transformer)", size: "0.79" },
-  { id: 7, word: "Fine-Tuning", size: "0.86" },
-  { id: 8, word: "Pre-training", size: "0.65" },
-  { id: 9, word: "Masked Language Model", size: "0.78" },
-  { id: 10, word: "Sequence-to-Sequence Model", size: "0.76" },
-  { id: 11, word: "Beam Search", size: "0.99" },
-  { id: 12, word: "Greedy Decoding", size: "0.81" },
-  { id: 13, word: "Self-Attention", size: "0.54" },
-  { id: 14, word: "Cross-Attention", size: "0.75" },
-  { id: 15, word: "Positional Encoding", size: "0.95" },
-  { id: 16, word: "Layer Normalization", size: "0.61" },
-  { id: 17, word: "Dropout", size: "0.97" },
-  { id: 18, word: "Residual Connection", size: "0.51" },
-  { id: 19, word: "Feedforward Neural Network", size: "0.84" },
-  { id: 20, word: "Softmax Function", size: "0.90" },
-  { id: 1, word: "Tokenization", size: "0.68" }
+  // { id: 7, word: "Fine-Tuning", size: "0.86" },
+  // { id: 8, word: "Pre-training", size: "0.65" },
+  // { id: 9, word: "Masked Language Model", size: "0.78" },
+  // { id: 10, word: "Sequence-to-Sequence Model", size: "0.76" },
+  // { id: 11, word: "Beam Search", size: "0.99" },
+  // { id: 12, word: "Greedy Decoding", size: "0.81" },
+  // { id: 13, word: "Self-Attention", size: "0.54" },
+  // { id: 14, word: "Cross-Attention", size: "0.75" },
+  // { id: 15, word: "Positional Encoding", size: "0.95" },
+  // { id: 16, word: "Layer Normalization", size: "0.61" },
+  // { id: 17, word: "Dropout", size: "0.97" },
+  // { id: 18, word: "Residual Connection", size: "0.51" },
+  // { id: 19, word: "Feedforward Neural Network", size: "0.84" },
+  // { id: 20, word: "Softmax Function", size: "0.90" },
+  // { id: 1, word: "Tokenization", size: "0.68" }
 ]
 
 const getRandomPosition = (size: number) => {
@@ -68,6 +68,31 @@ export default function ConceptsWall() {
   })))
 
   useEffect(() => {
+
+    const fetchWords = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words?limit=20&sort=most-edited`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+
+        setConcepts(data.map((word: any) => ({
+          id: word.id,
+          word: word.word,
+          size: getRandomSize(word.size),
+          color: getRandomColor(),
+          position: getRandomPosition(88),
+          visible: true,
+          zIndex: 0
+        })));
+      } catch (error) {
+        console.error('Fetch failed:', error);
+      }
+    };
+
+    fetchWords();
+
     const handleResize = () => {
       setConcepts(prevConcepts =>
         prevConcepts.map(concept => ({
