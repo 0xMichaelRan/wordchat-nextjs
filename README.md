@@ -35,12 +35,12 @@ Then the app will be accessible at http://<host-machine-ip>:3000
 
 Done:
 
-* get random empoty word
-* return history DESC
+* [1] Get random empty word
+* [1] Return history in DESC order
+* [1] Remove empty explain from history SQL query
+* [1] Add search, add and config button to navbar
 
 To do:
 
-* remove empty explain from history SQL query
-* support both word and abbreviation in the DB
-* add search, add and config button to navbar
-* insert word from chat page
+* [3] Support both word and abbreviation in the DB
+* [1] insert word from chat page

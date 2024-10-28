@@ -33,10 +33,10 @@ const defaultResponse: WordData = {
 };
 
 const defaultRelatedWords = [
+  { related_word_id: 10, correlation: 0.9, related_word: "Beam" },
   { related_word_id: 2, correlation: 0.8, related_word: "GPT (Generative Pre-trained Transformer)" },
   { related_word_id: 3, correlation: 0.7, related_word: "Sequence-to-Sequence Model" },
   { related_word_id: 6, correlation: 0.6, related_word: "Fine-Tuning" },
-  { related_word_id: 10, correlation: 0.5, related_word: "Beam" },
 ];
 
 const defaultExplainHistory = [
@@ -74,14 +74,14 @@ export default function WordPage() {
 
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Add state for split mode
+  // State for split mode
   const [splitMode, setSplitMode] = useState(false);
   const [selectedWords, setSelectedWords] = useState<string[]>([]);
 
-  // Add this function to handle word selection
+  // Function to handle word selection
   const handleWordSelect = (word: string) => {
-    setSelectedWords(prev => 
-      prev.includes(word) 
+    setSelectedWords(prev =>
+      prev.includes(word)
         ? prev.filter(w => w !== word)
         : [...prev, word]
     );
@@ -89,6 +89,7 @@ export default function WordPage() {
 
   useEffect(() => {
     const fetchData = async () => {
+      // Get a random word with empty explain
       if (id === '-1') {
         try {
           const randomWordResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/random_empty_explain`);
@@ -100,12 +101,13 @@ export default function WordPage() {
           return;
         } catch (error) {
           console.error('Error fetching random word:', error);
-          setError('Failed to fetch random word');
+          setError('No more random word: this feature is deprecated');
           setLoading(false);
           return;
         }
       }
 
+      // Get a normal word
       try {
         const wordResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}`)
         if (!wordResponse.ok) {
@@ -154,10 +156,10 @@ export default function WordPage() {
         setLoading(false)
       }
     }
-
     fetchData()
   }, [id])
 
+  // Update word data
   const updateWordData = async (updatedData: Partial<WordData>) => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}`, {
@@ -189,6 +191,7 @@ export default function WordPage() {
     }
   };
 
+  // Edit explain
   const handleEditExplain = () => {
     setIsEditingExplain(!isEditingExplain);
     if (!isEditingExplain) {
@@ -199,6 +202,7 @@ export default function WordPage() {
     }
   }
 
+  // Save explain
   const handleSaveExplain = () => {
     if (editedExplain.trim() === '') {
       console.log('Explain field cannot be empty');
@@ -210,6 +214,7 @@ export default function WordPage() {
     console.log("Saving new explain:", editedExplain);
   }
 
+  // Edit details
   const handleEditDetails = () => {
     setIsEditingDetails(true);
     setTimeout(() => {
@@ -217,6 +222,7 @@ export default function WordPage() {
     }, 0); // Ensure focus is called after the state update
   };
 
+  // Save details
   const handleSaveDetails = () => {
     if (editedDetails.trim() === '') {
       console.log('Details is empty, saving anyway.');
@@ -226,6 +232,7 @@ export default function WordPage() {
     console.log("Saving new details:", editedDetails);
   }
 
+  // Generate explain by LLM
   const handleGenerateExplain = async (word: string) => {
     setIsGenerating(true)
     setIsEditingExplain(false)
@@ -266,10 +273,12 @@ export default function WordPage() {
     }
   };
 
+  // Loading state
   if (loading) {
     return <div>Loading...</div>
   }
 
+  // Error state
   if (error || !wordData) {
     return <div>Error: {error || 'Word not found'}</div>
   }
@@ -342,9 +351,9 @@ export default function WordPage() {
                   <span key={index}>{word + ' '}</span>
                 )
               ))}
-              
+
               {selectedWords.length > 0 && splitMode && (
-                <Link 
+                <Link
                   href={`/chat/${encodeURIComponent(selectedWords.join(' '))}?id=${wordData.id}`}
                   className="mt-4 p-4 border-2 border-primary rounded-lg cursor-pointer hover:bg-muted text-center block"
                 >
@@ -366,9 +375,9 @@ export default function WordPage() {
               {showDetails ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
             </Button>
             <div className="flex gap-2 items-center">
-              <Button 
-                variant="outline" 
-                size="icon" 
+              <Button
+                variant="outline"
+                size="icon"
                 onClick={handleEditExplain}
               >
                 {isEditingExplain ? (
@@ -445,18 +454,37 @@ export default function WordPage() {
           <CardTitle className="text-xl font-semibold">Related Words</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-3 justify-center">
-            {relatedWords.map(({ related_word_id, correlation, related_word }, index) => (
-              <Link href={`/word/${related_word_id}`} key={`${related_word_id}-${index}`}>
-                <Button
-                  variant="ghost"
-                  className="px-2 py-1 hover:bg-primary hover:text-primary-foreground transition-colors"
-                  style={{ fontSize: '16px' }}
+          <div className="flex flex-wrap gap-3 justify-start"> {/* Changed justify-center to justify-start */}
+            {relatedWords
+              .sort(() => Math.random() - 0.5) // Randomize the order
+              .map(({ related_word_id, correlation, related_word }, index) => (
+                <Link
+                  href={`/word/${related_word_id}`}
+                  key={`${related_word_id}-${index}`}
+                  className="transition-all duration-200"
                 >
-                  {related_word} ({correlation.toFixed(2)})
-                </Button>
-              </Link>
-            ))}
+                  <Button
+                    variant="outline"
+                    className={`
+                    px-2 py-1 
+                    hover:bg-primary hover:text-primary-foreground 
+                    transition-colors
+                    border rounded-lg
+                  `}
+                    style={{
+                      // Scale font size between 14px and 18px based on correlation
+                      fontSize: `${-70 + (correlation * 100)}px`,
+                      // Scale padding based on correlation
+                      padding: `${-6 + (correlation * 18)}px ${8 + (correlation * 8)}px`,
+                      // Border opacity based on correlation
+                      borderWidth: '2px',
+                      opacity: -3.2 + (correlation * 5)
+                    }}
+                  >
+                    {related_word} ({correlation.toFixed(2)})
+                  </Button>
+                </Link>
+              ))}
           </div>
         </CardContent>
       </Card>
