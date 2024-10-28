@@ -10,7 +10,6 @@ import { useConfig } from '@/hooks/useConfig'
 
 const navItems = [
     { name: 'Home', href: '/' },
-    { name: 'Word Wall', href: '/word-wall' },
     { name: 'Random', href: '/word/-1' },
     { name: 'Config', href: '/config' },
 ]

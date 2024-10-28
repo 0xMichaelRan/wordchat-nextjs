@@ -116,13 +116,19 @@ export default function WordPage() {
         setEditedExplain(fetchedWordData.explain)
         setEditedDetails(fetchedWordData.details || '')
 
-        const relatedResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/related/${id}`)
+        // Update the related words fetch call
+        const relatedResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/related/query-by-id?id=${id}`)
         if (!relatedResponse.ok) {
           throw new Error('Fetch related words failed')
         }
         const relatedData = await relatedResponse.json()
         console.log("relatedData", relatedData)
-        setRelatedWords(relatedData)
+        // Update state with new data structure
+        setRelatedWords(relatedData.map(({ id, score, word }: { id: number; score: number; word: string }) => ({
+          related_word_id: id,
+          correlation: score,
+          related_word: word
+        })))
 
         const historyResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}/history`)
         if (!historyResponse.ok) {
