@@ -1,4 +1,4 @@
-import ConceptsWall from "./word/concept/concepts-wall";
+import ConceptsWall from "./home/concept/concepts-wall";
 
 export default function Home() {
     return (
