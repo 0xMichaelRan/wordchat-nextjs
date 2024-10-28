@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const aiConcepts = [
   { id: 2, word: "Embedding", size: "0.80" },
@@ -28,28 +28,25 @@ const aiConcepts = [
 ]
 
 const getRandomPosition = (size: number) => {
-  // Ensure we have access to window object
   if (typeof window === 'undefined') return { x: 0, y: 0 }
-  
-  // Account for padding and safe margins
-  const padding = 20
-  const maxWidth = window.innerWidth - size - (padding * 2)
-  const maxHeight = window.innerHeight - size - (padding * 2)
-  
+
+  const padding = 30
+  const maxWidth = window.innerWidth - size - (padding * 1)
+  const maxHeight = window.innerHeight - size - (padding * 1)
+
   return {
-    x: Math.max(padding, Math.random() * maxWidth),
-    y: Math.max(padding, Math.random() * maxHeight)
+    x: Math.max(padding / 10, Math.random() * maxWidth),
+    y: Math.max(padding / 10, Math.random() * maxHeight)
   }
 }
 
 const getRandomSize = (baseSize: string) => {
-  // Convert string to number and map from 0.51-0.99 range to 50-200 range
   const size = parseFloat(baseSize)
   const minInputSize = 0.51
   const maxInputSize = 0.99
-  const minOutputSize = 50
-  const maxOutputSize = 200
-  
+  const minOutputSize = 88
+  const maxOutputSize = 188
+
   const normalizedSize = (size - minInputSize) / (maxInputSize - minInputSize)
   return Math.floor(minOutputSize + (normalizedSize * (maxOutputSize - minOutputSize)))
 }
@@ -60,69 +57,97 @@ const getRandomColor = () => {
 }
 
 export default function ConceptsWall() {
-  const [filteredConcepts, setFilteredConcepts] = useState(aiConcepts.map(concept => ({
+  const [concepts, setConcepts] = useState(aiConcepts.map(concept => ({
     id: concept.id,
     word: concept.word,
-    size: getRandomSize(concept.size),
+    size: getRandomSize(String(concept.size)),
     color: getRandomColor(),
-    position: getRandomPosition(88)
+    position: getRandomPosition(88),
+    visible: true,
+    zIndex: 0
   })))
 
   useEffect(() => {
     const handleResize = () => {
-      setFilteredConcepts(prevConcepts =>
+      setConcepts(prevConcepts =>
         prevConcepts.map(concept => ({
           ...concept,
-          position: getRandomPosition(88)
+          position: getRandomPosition(concept.size)
         }))
       )
     }
 
     window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
 
-  useEffect(() => {
-    setFilteredConcepts(
-      aiConcepts
-        .map(concept => ({
-          id: concept.id,
-          word: concept.word,
-          size: getRandomSize(concept.size),
-          color: getRandomColor(),
-          position: getRandomPosition(88)
-        }))
-    )
+    const timer = setInterval(() => {
+      setConcepts(prevConcepts => {
+        const indexToToggle = Math.floor(Math.random() * prevConcepts.length)
+        return prevConcepts.map((concept, index) =>
+          index === indexToToggle
+            ? { ...concept, visible: false }
+            : concept
+        )
+      })
+
+      setTimeout(() => {
+        setConcepts(prevConcepts => {
+          const hiddenConceptIndex = prevConcepts.findIndex(c => !c.visible)
+          if (hiddenConceptIndex !== -1) {
+            const maxZIndex = Math.max(...prevConcepts.map(c => c.zIndex))
+            return prevConcepts.map((concept, index) =>
+              index === hiddenConceptIndex
+                ? {
+                  ...concept,
+                  visible: true,
+                  position: getRandomPosition(concept.size),
+                  zIndex: maxZIndex + 1
+                }
+                : concept
+            )
+          }
+          return prevConcepts
+        })
+      }, 1000)
+    }, 2000 + Math.floor(Math.random() * 2000))
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
+      clearInterval(timer)
+    }
   }, [])
 
   return (
-    <main className="pt-24 pb-12 px-4 sm:px-6 lg:px-8 relative h-screen">
-      <div className="relative w-full h-full">
-        {filteredConcepts.map((concept, index) => (
-          <motion.div
-            key={concept.word}
-            className={`${concept.color} rounded-full absolute flex items-center justify-center text-center cursor-pointer transition-all duration-300 hover:scale-110 hover:z-10`}
-            style={{
-              width: `${concept.size}px`,
-              height: `${concept.size}px`,
-              fontSize: `${concept.size / 10}px`,
-              left: concept.position.x,
-              top: concept.position.y,
-            }}
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            whileHover={{ scale: 1.1, zIndex: 1 }}
-            drag
-            dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-            dragElastic={0.1}
-          >
-            <Link href={`/word/${concept.id}`} className="font-semibold p-2">
-              {concept.word}
-            </Link>
-          </motion.div>
+    <main className="relative w-screen h-screen overflow-hidden bg-gray-900">
+      <AnimatePresence>
+        {concepts.map((concept) => (
+          concept.visible && (
+            <motion.div
+              key={concept.id}
+              className={`${concept.color} rounded-full absolute flex items-center justify-center text-center cursor-pointer transition-all duration-300 hover:scale-110`}
+              style={{
+                width: `${concept.size}px`,
+                height: `${concept.size}px`,
+                fontSize: `${concept.size / 10}px`,
+                x: concept.position.x,
+                y: concept.position.y,
+                zIndex: concept.zIndex
+              }}
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.5 }}
+              transition={{ duration: 0.5 }}
+              whileHover={{ scale: 1.1, zIndex: 9999 }}
+              drag
+              dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+              dragElastic={0.1}
+            >
+              <Link href={`/word/${concept.id}`} className="font-semibold p-2 text-white">
+                {concept.word}
+              </Link>
+            </motion.div>
+          )
         ))}
-      </div>
+      </AnimatePresence>
     </main>
   )
 }
