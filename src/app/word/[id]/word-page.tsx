@@ -43,13 +43,13 @@ const defaultExplainHistory = [
   {
     id: null,
     word_id: 1,
-    previous_explain: "Initial explanation for word 3",
+    old_explain: "Initial explanation for word 3",
     changed_at: "2023-10-03 12:00:00",
   },
   {
     id: null,
     word_id: 1,
-    previous_explain: "Initial explanation for word 3",
+    old_explain: "Initial explanation for word 3",
     changed_at: "2023-10-03 12:00:00",
   },
 ];
@@ -59,7 +59,7 @@ export default function WordPage() {
   const { id } = useParams()
   const [wordData, setWordData] = useState<WordData | null>(null)
   const [relatedWords, setRelatedWords] = useState<{ related_word_id: number; correlation: number; related_word: string }[]>([])
-  const [explainHistory, setExplainHistory] = useState<{ id: number | null; word_id: number; previous_explain: string; changed_at: string }[]>([])
+  const [explainHistory, setExplainHistory] = useState<{ id: number | null; word_id: number; old_explain: string; changed_at: string }[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -399,7 +399,7 @@ export default function WordPage() {
                 <DropdownMenuContent align="end" className="w-[300px]">
                   {explainHistory.map((explain, index) => (
                     <DropdownMenuItem key={index} className="flex flex-col items-start">
-                      <span className="font-medium">{explain.previous_explain}</span>
+                      <span className="font-medium">{explain.old_explain}</span>
                       <span className="text-sm text-muted-foreground">{explain.changed_at}</span>
                     </DropdownMenuItem>
                   ))}
