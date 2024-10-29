@@ -79,7 +79,7 @@ export default function WordPage() {
   const [selectedWords, setSelectedWords] = useState<string[]>([]);
 
   // Function to handle word selection
-  const handleWordSelect = (word: string) => {
+  const handleSplitWordSelect = (word: string) => {
     setSelectedWords(prev =>
       prev.includes(word)
         ? prev.filter(w => w !== word)
@@ -209,6 +209,7 @@ export default function WordPage() {
   // Edit explain
   const handleEditExplain = () => {
     setIsEditingExplain(!isEditingExplain);
+    setSplitMode(false);
     if (!isEditingExplain) {
       setShowDetails(true); // Ensure details are shown when opening the editor
       setTimeout(() => {
@@ -222,6 +223,8 @@ export default function WordPage() {
     if (editedExplain.trim() === '') {
       console.log('Explain field cannot be empty');
       return;
+    } else {
+      setEditedExplain(editedExplain.replace(/  +/g, ' '));
     }
 
     setIsEditingExplain(false);
@@ -251,6 +254,7 @@ export default function WordPage() {
   const handleGenerateExplain = async (word: string) => {
     setIsGenerating(true)
     setIsEditingExplain(false)
+    setSplitMode(false);
 
     try {
       console.log("Generating explain for", word)
@@ -333,18 +337,31 @@ export default function WordPage() {
               <Button
                 variant="outline"
                 size="icon"
-                onClick={() => setSplitMode(!splitMode)}
+                onClick={() => {
+                  setSplitMode(!splitMode);
+                  setIsEditingExplain(false);
+                }}
+                title="Toggle split mode"
               >
                 <span className="font-bold text-xs">A|B</span>
                 <span className="sr-only">Split Text</span>
               </Button>
-              <Button variant="outline" size="icon" asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                asChild
+                title={`Chat about ${wordData.word}`}
+              >
                 <Link href={`/chat/${wordData.word}?id=${wordData.id}`}>
                   <MessageSquare className="h-4 w-4" />
                   <span className="sr-only">Chat about {wordData.word}</span>
                 </Link>
               </Button>
-              <Button variant="outline" size="icon">
+              <Button
+                variant="outline"
+                size="icon"
+                title={`Merge ${wordData.word}`}
+              >
                 <GitMerge className="h-4 w-4" />
                 <span className="sr-only">Merge {wordData.word}</span>
               </Button>
@@ -370,7 +387,12 @@ export default function WordPage() {
               <div className="text-sm text-muted-foreground">
                 {editedExplain.length}/188 characters. Ctrl+Enter to save.
               </div>
-              <Button onClick={handleSaveExplain}>Save Explain</Button>
+              <Button
+                onClick={handleSaveExplain}
+                title="Save (Ctrl+Enter)"
+              >
+                Save Explain
+              </Button>
             </div>
           ) : (
             <div>
@@ -379,9 +401,10 @@ export default function WordPage() {
                   <Button
                     key={index}
                     variant={selectedWords.includes(word) ? "default" : "outline"}
-                    onClick={() => handleWordSelect(word)}
+                    onClick={() => handleSplitWordSelect(word)}
                     size="sm"
                     className="m-1"
+                    title={selectedWords.includes(word) ? "Click to unselect" : "Click to select"}
                   >
                     {word}
                   </Button>
@@ -391,10 +414,21 @@ export default function WordPage() {
               ))}
 
               {selectedWords.length > 0 && splitMode && (
-                <Button 
-                  variant="outline" 
-                  asChild 
-                  className="mt-4 border-2 border-primary rounded-lg cursor-pointer hover:bg-muted text-center block"
+                <Button
+                  variant="outline"
+                  asChild
+                  title={`Chat with: ${selectedWords.join(' ')}`}
+                  className={`
+                    mt-4 
+                    px-4 py-6 
+                    min-h-[80px] 
+                    border-2 border-primary 
+                    rounded-lg 
+                    cursor-pointer 
+                    hover:bg-muted 
+                    text-center 
+                    block
+                  `}
                 >
                   <Link href={`/chat/${encodeURIComponent(selectedWords.join(' '))}?id=${wordData.id}`}>
                     <p className="font-medium">{selectedWords.join(' ')}</p>
@@ -411,6 +445,7 @@ export default function WordPage() {
               aria-expanded={showDetails}
               aria-controls="word-details"
               className="text-muted-foreground"
+              title={showDetails ? "Show less details" : "Show more details"}
             >
               {showDetails ? "Less" : "More"}
               {showDetails ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
@@ -420,6 +455,7 @@ export default function WordPage() {
                 variant="outline"
                 size="icon"
                 onClick={handleEditExplain}
+                title={isEditingExplain ? "Cancel editing" : "Edit explanation"}
               >
                 {isEditingExplain ? (
                   <X className="h-4 w-4" />
@@ -435,13 +471,18 @@ export default function WordPage() {
                 size="icon"
                 onClick={() => wordData && handleGenerateExplain(wordData.word)}
                 disabled={isGenerating}
+                title={isGenerating ? "Generating..." : "Generate AI explanation"}
               >
                 <Sparkles className="h-4 w-4" />
-                <span className="sr-only">Generate LLM explanation</span>
+                <span className="sr-only">Generate explain</span>
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    title="View History"
+                  >
                     <History className="h-4 w-4" />
                     <span className="sr-only">View explain history</span>
                   </Button>
@@ -499,8 +540,8 @@ export default function WordPage() {
             {relatedWords
               .sort(() => Math.random() - 0.5) // Randomize the order
               .map(({ related_word_id, correlation, related_word }, index) => (
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   asChild
                   className={`
                     px-2 py-1 
