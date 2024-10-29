@@ -538,7 +538,7 @@ export default function WordPage() {
                     ${!showDetails ? 'line-clamp-2 cursor-pointer' : ''}
                     ${!editedDetails && 'text-muted-foreground italic'}
                   `}
-                  onClick={() => !showDetails && setShowDetails(true)}
+                  onClick={() => showDetails ? setShowDetails(false) : setShowDetails(true)}
                   title={!showDetails ? "Click to show more" : undefined}
                 >
                   {editedDetails || 'Details...'}

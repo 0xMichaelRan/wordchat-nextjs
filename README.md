@@ -52,7 +52,10 @@ Done:
 
 To do:
 
-* [1] if nothing found on Pinecone, the embedding might be missing
+* [1] if nothing found on Pinecone, the embedding might be missing??? handle this.
+* [2] support multiple knowledge bases.
+* [1] insert details from chat history.
+* [2] Persist chat history to DB.
+* [3] Support both word and abbreviation in the DB.
 * [1] change 'pinecone_status' to 'edit_since_embedding'
-* [3] Support both word and abbreviation in the DB
-* [1] insert word from chat page
+* [2] insert word from chat page
