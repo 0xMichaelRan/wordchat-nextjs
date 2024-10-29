@@ -54,6 +54,13 @@ const defaultExplainHistory = [
   },
 ];
 
+// Utility function to shuffle an array
+function shuffleArray<T>(array: T[]): T[] {
+  return array
+    .map(value => ({ value, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ value }) => value);
+}
 
 export default function WordPage() {
   const { id } = useParams()
@@ -130,11 +137,15 @@ export default function WordPage() {
         const fetchedRelatedData = await relatedResponse.json()
         console.log("fetchedRelatedData", fetchedRelatedData)
         // Update state with new data structure
-        setRelatedWords(fetchedRelatedData.map(({ id, score, word }: { id: number; score: number; word: string }) => ({
-          related_word_id: id,
-          correlation: score,
-          related_word: word
-        })))
+        setRelatedWords(
+          shuffleArray(
+            fetchedRelatedData.map(({ id, score, word }: { id: number; score: number; word: string }) => ({
+              related_word_id: id,
+              correlation: score,
+              related_word: word
+            }))
+          )
+        );
 
         const historyResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}/history`)
         if (!historyResponse.ok) {
@@ -235,9 +246,13 @@ export default function WordPage() {
   // Edit details
   const handleEditDetails = () => {
     setIsEditingDetails(true);
+    // Wait for textarea to be rendered
     setTimeout(() => {
-      detailsTextareaRef.current?.focus();
-    }, 0); // Ensure focus is called after the state update
+      if (detailsTextareaRef.current) {
+        detailsTextareaRef.current.style.height = 'auto';
+        detailsTextareaRef.current.style.height = `${detailsTextareaRef.current.scrollHeight}px`;
+      }
+    }, 0); 
   };
 
   // Save details
@@ -438,18 +453,6 @@ export default function WordPage() {
             </div>
           )}
           <div className="flex justify-between items-center">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowDetails(!showDetails)}
-              aria-expanded={showDetails}
-              aria-controls="word-details"
-              className="text-muted-foreground"
-              title={showDetails ? "Show less details" : "Show more details"}
-            >
-              {showDetails ? "Less" : "More"}
-              {showDetails ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
-            </Button>
             <div className="flex gap-2 items-center">
               <Button
                 variant="outline"
@@ -498,36 +501,61 @@ export default function WordPage() {
               </DropdownMenu>
             </div>
           </div>
-          {showDetails && (
-            <div id="word-details" className="mt-4">
-              {isEditingDetails ? (
-                <div className="flex flex-col gap-2">
-                  <Textarea
-                    ref={detailsTextareaRef}
-                    value={editedDetails}
-                    onChange={(e) => setEditedDetails(e.target.value)}
-                    onKeyDown={(e) => {
-                      if ((e.ctrlKey && e.key === 'Enter') || (e.ctrlKey && e.key === 's')) {
-                        e.preventDefault(); // Prevent any default behavior
-                        handleSaveDetails();
-                      }
-                    }}
-                    className="w-full"
-                    rows={8}
-                  />
-                  <Button onClick={handleSaveDetails}>Save Details</Button>
+          <div id="word-details" className="mt-4">
+            {isEditingDetails ? (
+              // edit mode (Details)
+              <div className="flex flex-col gap-2 p-4 border-2 rounded-lg bg-muted/30">
+                <Textarea
+                  ref={detailsTextareaRef}
+                  value={editedDetails}
+                  onChange={(e) => setEditedDetails(e.target.value)}
+                  onKeyDown={(e) => {
+                    if ((e.ctrlKey && e.key === 'Enter') || (e.ctrlKey && e.key === 's')) {
+                      e.preventDefault();
+                      handleSaveDetails();
+                    }
+                  }}
+                  className="w-full resize-none overflow-hidden"
+                  style={{
+                    minHeight: '88px',
+                    height: `${detailsTextareaRef.current?.scrollHeight}px`
+                  }}
+                  placeholder="Enter details here..."
+                />
+                <div className="flex gap-2 items-center w-full">
+                  <Button onClick={handleSaveDetails} title="Save details (Ctrl+Enter)" className="flex-1">Save Details</Button>
+                  <Button variant="outline" onClick={() => setIsEditingDetails(false)} title="Cancel editing" className="flex-1">Cancel</Button>
                 </div>
-              ) : (
-                <div className="flex justify-between items-start">
-                  <p className="flex-grow whitespace-pre-line">{editedDetails}</p>
-                  <Button variant="ghost" size="sm" onClick={handleEditDetails} className="ml-2">
-                    <Edit className="h-4 w-4" />
-                    <span className="sr-only">Edit details</span>
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
+              </div>
+            ) : (
+              // view mode (Details)
+              <div className="flex justify-between items-start p-4 border-2 rounded-lg bg-muted/10 hover:bg-muted/20 transition-colors">
+                <p
+                  className={`
+                    flex-grow 
+                    whitespace-pre-line
+                    leading-6
+                    ${!showDetails ? 'line-clamp-2 cursor-pointer' : ''}
+                    ${!editedDetails && 'text-muted-foreground italic'}
+                  `}
+                  onClick={() => !showDetails && setShowDetails(true)}
+                  title={!showDetails ? "Click to show more" : undefined}
+                >
+                  {editedDetails || 'Details...'}
+                </p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleEditDetails}
+                  title="Edit details"
+                  className="ml-2"
+                >
+                  <Edit className="h-4 w-4" />
+                  <span className="sr-only">Edit details</span>
+                </Button>
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
 
@@ -538,7 +566,6 @@ export default function WordPage() {
         <CardContent>
           <div className="flex flex-wrap gap-3 justify-start"> {/* Changed justify-center to justify-start */}
             {relatedWords
-              .sort(() => Math.random() - 0.5) // Randomize the order
               .map(({ related_word_id, correlation, related_word }, index) => (
                 <Button
                   variant="outline"
