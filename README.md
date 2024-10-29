@@ -29,6 +29,11 @@ npm run dev
 To bind IP, run this in PowerShell (admin):
 
 ```powershell
+New-NetFirewallRule -DisplayName "Port 8080" -Direction Inbound -LocalPort 8080 -Protocol TCP -Action Allow
+New-NetFirewallRule -DisplayName "Port 3000" -Direction Inbound -LocalPort 3000 -Protocol TCP -Action Allow
+Get-NetFirewallRule -DisplayName "Port 8080"
+Get-NetFirewallRule -DisplayName "Port 3000"
+
 netsh interface portproxy add v4tov4 listenport=3000 listenaddress=0.0.0.0 connectport=3000 connectaddress=172.22.170.120
 netsh interface portproxy add v4tov4 listenport=8080 listenaddress=0.0.0.0 connectport=8080 connectaddress=172.22.170.120
 ```
@@ -43,10 +48,11 @@ Done:
 * [1] Return history in DESC order
 * [1] Remove empty explain from history SQL query
 * [1] Add search, add and config button to navbar
+* [2] Do not query Pinecone directly, but use DB as cache
 
 To do:
 
-* [2] Do not query Pinecone directly, but use DB as cache
+* [1] if nothing found on Pinecone, the embedding might be missing
 * [1] change 'pinecone_status' to 'edit_since_embedding'
 * [3] Support both word and abbreviation in the DB
 * [1] insert word from chat page

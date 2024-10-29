@@ -88,7 +88,10 @@ export default function WordPage() {
   };
 
   useEffect(() => {
+    console.log('Effect running with id:', id);
+
     const fetchData = async () => {
+      console.log('Fetching data for id:', id);
       // Get a random word with empty explain
       if (id === '-1') {
         try {
@@ -114,6 +117,7 @@ export default function WordPage() {
           throw new Error('Fetch failed')
         }
         const fetchedWordData = await wordResponse.json()
+        console.log("fetchedWordData", fetchedWordData)
         setWordData(fetchedWordData)
         setEditedExplain(fetchedWordData.explain)
         setEditedDetails(fetchedWordData.details || '')
@@ -123,10 +127,10 @@ export default function WordPage() {
         if (!relatedResponse.ok) {
           throw new Error('Fetch related words failed')
         }
-        const relatedData = await relatedResponse.json()
-        console.log("relatedData", relatedData)
+        const fetchedRelatedData = await relatedResponse.json()
+        console.log("fetchedRelatedData", fetchedRelatedData)
         // Update state with new data structure
-        setRelatedWords(relatedData.map(({ id, score, word }: { id: number; score: number; word: string }) => ({
+        setRelatedWords(fetchedRelatedData.map(({ id, score, word }: { id: number; score: number; word: string }) => ({
           related_word_id: id,
           correlation: score,
           related_word: word
@@ -136,8 +140,9 @@ export default function WordPage() {
         if (!historyResponse.ok) {
           throw new Error('Fetch explain history failed')
         }
-        const historyData = await historyResponse.json()
-        setExplainHistory(historyData)
+        const fetchedHistoryData = await historyResponse.json()
+        console.log("fetchedHistoryData", fetchedHistoryData)
+        setExplainHistory(fetchedHistoryData)
 
         // Check if explain is empty and generate if needed
         if (fetchedWordData.explain === "") {
@@ -156,7 +161,17 @@ export default function WordPage() {
         setLoading(false)
       }
     }
-    fetchData()
+    fetchData();
+
+    // React 18 Strict Mode Behavior:
+    // In development, Strict Mode intentionally:
+    // Mounts components
+    // Unmounts them
+    // Mounts them again
+    // This is to help developers find bugs related to cleanup and effects
+    return () => {
+      console.log('Effect cleanup for id:', id);
+    };
   }, [id])
 
   // Update word data
@@ -278,7 +293,7 @@ export default function WordPage() {
     return (
       <div className="fixed inset-0 bg-gradient-to-br from-purple-700 via-blue-800 to-cyan-900 flex items-center justify-center">
         <motion.div
-          className="text-white text-4xl md:text-6xl font-bold"
+          className="text-white text-2xl md:text-4xl font-bold"
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -319,7 +334,6 @@ export default function WordPage() {
                 variant="outline"
                 size="icon"
                 onClick={() => setSplitMode(!splitMode)}
-                className="h-8 w-8"
               >
                 <span className="font-bold text-xs">A|B</span>
                 <span className="sr-only">Split Text</span>
@@ -377,12 +391,15 @@ export default function WordPage() {
               ))}
 
               {selectedWords.length > 0 && splitMode && (
-                <Link
-                  href={`/chat/${encodeURIComponent(selectedWords.join(' '))}?id=${wordData.id}`}
-                  className="mt-4 p-4 border-2 border-primary rounded-lg cursor-pointer hover:bg-muted text-center block"
+                <Button 
+                  variant="outline" 
+                  asChild 
+                  className="mt-4 border-2 border-primary rounded-lg cursor-pointer hover:bg-muted text-center block"
                 >
-                  <p className="font-medium">{selectedWords.join(' ')}</p>
-                </Link>
+                  <Link href={`/chat/${encodeURIComponent(selectedWords.join(' '))}?id=${wordData.id}`}>
+                    <p className="font-medium">{selectedWords.join(' ')}</p>
+                  </Link>
+                </Button>
               )}
             </div>
           )}
@@ -482,32 +499,30 @@ export default function WordPage() {
             {relatedWords
               .sort(() => Math.random() - 0.5) // Randomize the order
               .map(({ related_word_id, correlation, related_word }, index) => (
-                <Link
-                  href={`/word/${related_word_id}`}
-                  key={`${related_word_id}-${index}`}
-                  className="transition-all duration-200"
-                >
-                  <Button
-                    variant="outline"
-                    className={`
+                <Button 
+                  variant="outline" 
+                  asChild
+                  className={`
                     px-2 py-1 
                     hover:bg-primary hover:text-primary-foreground 
                     transition-colors
                     border rounded-lg
                   `}
-                    style={{
-                      // Scale font size between 14px and 18px based on correlation
-                      fontSize: `${-70 + (correlation * 100)}px`,
-                      // Scale padding based on correlation
-                      padding: `${-6 + (correlation * 18)}px ${8 + (correlation * 8)}px`,
-                      // Border opacity based on correlation
-                      borderWidth: '2px',
-                      opacity: -3.2 + (correlation * 5)
-                    }}
+                  style={{
+                    fontSize: `${-70 + (correlation * 100)}px`,
+                    padding: `${-6 + (correlation * 18)}px ${8 + (correlation * 8)}px`,
+                    borderWidth: '2px',
+                    opacity: -3.2 + (correlation * 5)
+                  }}
+                >
+                  <Link
+                    href={`/word/${related_word_id}`}
+                    key={`${related_word_id}-${index}`}
+                    className="transition-all duration-200"
                   >
                     {related_word} ({correlation.toFixed(2)})
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               ))}
           </div>
         </CardContent>
