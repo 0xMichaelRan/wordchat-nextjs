@@ -12,9 +12,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import axios from 'axios'
 import { motion } from 'framer-motion'
-import { useConfig } from '@/hooks/useConfig'
 
-interface WordData {
+import { useConfig } from '@/hooks/useConfig'
+import { updateWordDataApi } from '@/utils/api';
+
+export interface WordData {
   id: number;
   word: string;
   explain: string;
@@ -25,14 +27,14 @@ interface WordData {
   created_at: string;
 }
 
-const defaultResponse: WordData = {
+const defaultWord: WordData = {
   id: 1,
-  word: "Machine Learning",
+  word: "G.A.N",
   explain: "A decoding strategy that selects the most probable word at each step in sequence generation.",
   details: "Move chat button to the same line as last updated timestamp, and remove the word \"Last Updated\", just keep the date and time. Also add a merge button alongside the chat button. Make the border bold and shaded., and add apply tag style border to related words. I'll modify the component to move the chat button to the same line as the timestamp, remove \"Last Updated\", add a merge button, make the border bold and shaded, and apply a tag style border to. Here's the updated component.",
   edit_since_embedding: 4,
   ai_generated: false,
-  knowledge_base: "llm",
+  knowledge_base: "LLM",
   created_at: "2024-10-29T11:10:31.940Z",
 };
 
@@ -112,9 +114,9 @@ export default function WordPage() {
 
       } catch (error) {
         console.error('Error fetching data:', error);
-        setWordData(defaultResponse);
-        setEditedExplain(defaultResponse.explain);
-        setEditedDetails(defaultResponse.details || '');
+        setWordData(defaultWord);
+        setEditedExplain(defaultWord.explain);
+        setEditedDetails(defaultWord.details || '');
       } finally {
         setLoading(false);
       }
@@ -136,22 +138,9 @@ export default function WordPage() {
   // Update word data
   const updateWordData = async (updatedData: Partial<WordData>) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}?knowledge_base=${config.knowledgeBase}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ...updatedData, knowledge_base: config.knowledgeBase }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Update failed');
-      }
-
-      const data = await response.json();
+      const data = await updateWordDataApi(id as string, updatedData, config.knowledgeBase);
       setWordData(data);
       setRefreshKey(prevKey => prevKey + 1); // Increment refreshKey to trigger refresh
-
     } catch (error) {
       console.error('Error updating word data:', error);
       setError('Failed to update word data');
@@ -481,8 +470,7 @@ export default function WordPage() {
         </CardContent>
       </Card>
 
-      <RelatedWordsCard
-        wordId={wordData.id}
+      <RelatedWordsCard wordId={wordData.id}
       />
     </main>
   )
