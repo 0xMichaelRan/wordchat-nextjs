@@ -259,7 +259,7 @@ export default function WordPage() {
     console.log("Saving new details:", editedDetails);
   }
 
-  // Generate explain by LLM
+  // Generate explain by AI
   const handleGenerateExplain = async (word: string) => {
     setIsGenerating(true)
     setIsEditingExplain(false)

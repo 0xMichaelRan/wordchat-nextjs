@@ -104,7 +104,7 @@ export default function ConfigPage() {
       <h1 className="text-3xl font-bold mb-8">API Keys</h1>
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle>LLM API Settings</CardTitle>
+          <CardTitle>API Settings</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={(e) => e.preventDefault()} className="space-y-4">

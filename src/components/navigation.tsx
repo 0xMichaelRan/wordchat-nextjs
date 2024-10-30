@@ -48,7 +48,7 @@ export function Navigation() {
                         <div className="flex items-center gap-2">
                             <Link href="/" className="text-2xl font-bold">WordChat</Link>
                             <span className="text-sm font-medium bg-white text-black px-2 py-0.5 rounded-md">
-                                {config.knowledgeBase || 'LLM'}
+                                {config.knowledgeBase}
                             </span>
                         </div>
                     </div>
