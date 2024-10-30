@@ -127,7 +127,7 @@ export default function WordPage() {
 
       // Get a normal word
       try {
-        const wordResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}?knowledge_base=${config.knowledgeBase}`);
+        const wordResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}?knowledge_base=${config.knowledgeBase.toLowerCase()}`);
         if (!wordResponse.ok) {
           throw new Error('Fetch failed');
         }
@@ -139,7 +139,7 @@ export default function WordPage() {
 
         // Update the related words fetch call
         const relatedResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/related/${id}?knowledge_base=${config.knowledgeBase}`
+          `${process.env.NEXT_PUBLIC_API_URL}/api/related/${id}?knowledge_base=${config.knowledgeBase.toLowerCase()}`
         )
         if (!relatedResponse.ok) {
           throw new Error('Fetch related words failed')
@@ -157,7 +157,7 @@ export default function WordPage() {
           )
         );
 
-        const historyResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}/history?knowledge_base=${config.knowledgeBase}`)
+        const historyResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}/history?knowledge_base=${config.knowledgeBase.toLowerCase()}`)
         if (!historyResponse.ok) {
           throw new Error('Fetch explain history failed')
         }
@@ -199,12 +199,12 @@ export default function WordPage() {
   // Update word data
   const updateWordData = async (updatedData: Partial<WordData>) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}?knowledge_base=${config.knowledgeBase}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}?knowledge_base=${config.knowledgeBase.toLowerCase()}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ...updatedData, knowledge_base: config.knowledgeBase }),
+        body: JSON.stringify({ ...updatedData, knowledge_base: config.knowledgeBase.toLowerCase() }),
       });
 
       if (!response.ok) {
@@ -215,7 +215,7 @@ export default function WordPage() {
       setWordData(data);
 
       // Fetch explain history again
-      const historyResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}/history?knowledge_base=${config.knowledgeBase}`);
+      const historyResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}/history?knowledge_base=${config.knowledgeBase.toLowerCase()}`);
       if (!historyResponse.ok) {
         throw new Error('Fetch explain history failed');
       }
