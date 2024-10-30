@@ -61,19 +61,11 @@ const defaultExplainHistory = [
   },
 ];
 
-// Utility function to shuffle an array
-function shuffleArray<T>(array: T[]): T[] {
-  return array
-    .map(value => ({ value, sort: Math.random() }))
-    .sort((a, b) => a.sort - b.sort)
-    .map(({ value }) => value);
-}
-
 export default function WordPage() {
   const { id } = useParams()
   const { config, saveConfig } = useConfig()
   const [wordData, setWordData] = useState<WordData | null>(null)
-  const [relatedWords, setRelatedWords] = useState<{ related_word_id: number; correlation: number; related_word: string }[]>([])
+  const [relatedWords, setRelatedWords] = useState<{ id: number; correlation: number; word: string }[]>([])
   const [explainHistory, setExplainHistory] = useState<{ id: number | null; word_id: number; old_explain: string; changed_at: string }[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -146,17 +138,8 @@ export default function WordPage() {
         }
         const fetchedRelatedData = await relatedResponse.json()
         console.log("fetchedRelatedData", fetchedRelatedData)
-        // Update state with new data structure
-        setRelatedWords(
-          shuffleArray(
-            fetchedRelatedData.map(({ id, score, word }: { id: number; score: number; word: string }) => ({
-              related_word_id: id,
-              correlation: score,
-              related_word: word
-            }))
-          )
-        );
-
+        setRelatedWords(fetchedRelatedData)
+        
         const historyResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}/history?knowledge_base=${config.knowledgeBase}`)
         if (!historyResponse.ok) {
           throw new Error('Fetch explain history failed')
@@ -575,34 +558,33 @@ export default function WordPage() {
           <CardTitle className="text-xl font-semibold">Related Words</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-3 justify-start"> {/* Changed justify-center to justify-start */}
-            {relatedWords
-              .map(({ related_word_id, correlation, related_word }, index) => (
-                <Button
-                  variant="outline"
-                  asChild
-                  className={`
-                    px-2 py-1 
-                    hover:bg-primary hover:text-primary-foreground 
-                    transition-colors
-                    border rounded-lg
-                  `}
-                  style={{
-                    fontSize: `${-70 + (correlation * 100)}px`,
-                    padding: `${-6 + (correlation * 18)}px ${8 + (correlation * 8)}px`,
-                    borderWidth: '2px',
-                    opacity: -3.2 + (correlation * 5)
-                  }}
+          <div className="flex flex-wrap gap-3 justify-start">
+            {relatedWords.map(({ id, correlation, word }, index) => (
+              <Button
+                key={`${id}-${index}`}
+                variant="outline"
+                asChild
+                className={`
+                  px-2 py-1 
+                  hover:bg-primary hover:text-primary-foreground 
+                  transition-colors
+                  border rounded-lg
+                `}
+                style={{
+                  fontSize: `${-70 + (correlation * 100)}px`,
+                  padding: `${-6 + (correlation * 18)}px ${8 + (correlation * 8)}px`,
+                  borderWidth: '2px',
+                  opacity: -3.2 + (correlation * 5)
+                }}
+              >
+                <Link
+                  href={`/word/${id}`}
+                  className="transition-all duration-200"
                 >
-                  <Link
-                    href={`/word/${related_word_id}`}
-                    key={`${related_word_id}-${index}`}
-                    className="transition-all duration-200"
-                  >
-                    {related_word} ({correlation !== undefined ? correlation.toFixed(2) : 'N/A'})
-                  </Link>
-                </Button>
-              ))}
+                  {word} ({correlation.toFixed(2)})
+                </Link>
+              </Button>
+            ))}
           </div>
         </CardContent>
       </Card>
