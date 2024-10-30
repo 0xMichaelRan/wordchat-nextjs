@@ -111,7 +111,6 @@ export default function WordPage() {
           console.log("Explain is empty, generating explain for", fetchedWordData.word)
           handleGenerateExplain(fetchedWordData.word)
         }
-
       } catch (error) {
         console.error('Error fetching data:', error);
         setWordData(defaultWord);
@@ -134,6 +133,13 @@ export default function WordPage() {
       console.log('Effect cleanup for id:', id);
     };
   }, [id])
+
+  // Add a separate useEffect specifically for title updates
+  useEffect(() => {
+    if (wordData?.word) {
+      window.document.title = `${wordData.word} - WordChat v0.1`;
+    }
+  }, [wordData?.word]); // Only depend on wordData.word instead of entire wordData object
 
   // Update word data
   const updateWordData = async (updatedData: Partial<WordData>) => {
@@ -192,7 +198,6 @@ export default function WordPage() {
     }
     setIsEditingDetails(false);
     updateWordData({ details: editedDetails });
-    console.log("Saving new details:", editedDetails);
   }
 
   // Generate explain by AI
@@ -409,7 +414,7 @@ export default function WordPage() {
                 <Sparkles className="h-4 w-4" />
                 <span className="sr-only">Generate explain</span>
               </Button>
-              <ExplainHistoryCard wordId={wordData.id} refreshKey={refreshKey}/>
+              <ExplainHistoryCard wordId={wordData.id} refreshKey={refreshKey} />
             </div>
           </div>
           <div id="word-details" className="mt-4">

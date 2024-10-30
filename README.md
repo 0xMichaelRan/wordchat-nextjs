@@ -53,6 +53,7 @@ Done:
 
 Currently working on:
 
+* [1] Update all page titles
 * [1] New add page
 * [2] support multiple knowledge bases.
 
