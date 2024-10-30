@@ -37,7 +37,7 @@ const ExplainHistoryCard: React.FC<ExplainHistoryCardProps> = ({ wordId, refresh
   useEffect(() => {
     const fetchExplainHistory = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${wordId}/history?knowledge_base=${config.knowledgeBase}`)
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/words/${wordId}/history?knowledge_base=${config.knowledgeBase}`)
         if (!response.ok) {
           throw new Error('Fetch explain history failed');
         }

@@ -24,11 +24,28 @@ const RelatedWordsCard: React.FC<RelatedWordsCardProps> = ({ wordId }) => {
   useEffect(() => {
     const fetchRelatedWords = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/related/${wordId}?knowledge_base=${config.knowledgeBase}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/embedding/${wordId}?knowledge_base=${config.knowledgeBase}`);
         if (!response.ok) {
           throw new Error('Fetch related words failed');
         }
         const data = await response.json();
+        if (data.length === 0) {
+          const embedResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/embedding/embed-one-word`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              word_id: wordId,
+              knowledge_base: config.knowledgeBase
+            })
+          });
+          if (!embedResponse.ok) {
+            throw new Error(`Failed trying to embed word ${wordId}`);
+          }
+          const embedData = await embedResponse.json();
+          console.log("embedData word", wordId, "embedData", embedData);
+        }
         setRelatedWords(data);
       } catch (error) {
         console.error('Error fetching related words:', error);
@@ -67,7 +84,7 @@ const RelatedWordsCard: React.FC<RelatedWordsCardProps> = ({ wordId }) => {
                 href={`/word/${id}`}
                 className="transition-all duration-200"
               >
-                {word} ({correlation.toFixed(2)})
+                {word}{correlation != null && ` (${correlation.toFixed(2)})`}
               </Link>
             </Button>
           ))}

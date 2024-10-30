@@ -29,7 +29,7 @@ export interface WordData {
 
 const defaultWord: WordData = {
   id: 1,
-  word: "G.A.N",
+  word: "Multi Agent",
   explain: "A decoding strategy that selects the most probable word at each step in sequence generation.",
   details: "Move chat button to the same line as last updated timestamp, and remove the word \"Last Updated\", just keep the date and time. Also add a merge button alongside the chat button. Make the border bold and shaded., and add apply tag style border to related words. I'll modify the component to move the chat button to the same line as the timestamp, remove \"Last Updated\", add a merge button, make the border bold and shaded, and apply a tag style border to. Here's the updated component.",
   edit_since_embedding: 4,
@@ -79,7 +79,7 @@ export default function WordPage() {
       // Get a random word with empty explain
       if (id === '-1') {
         try {
-          const randomWordResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/random_empty_explain`);
+          const randomWordResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/words/random_empty_explain`);
           if (!randomWordResponse.ok) {
             throw new Error('Fetch random word failed');
           }
@@ -96,7 +96,7 @@ export default function WordPage() {
 
       // Get a normal word
       try {
-        const wordResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}?knowledge_base=${config.knowledgeBase}`);
+        const wordResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/words/${id}?knowledge_base=${config.knowledgeBase}`);
         if (!wordResponse.ok) {
           throw new Error('Fetch failed');
         }

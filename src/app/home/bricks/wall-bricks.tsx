@@ -45,7 +45,7 @@ export default function WallBricks() {
   useEffect(() => {
     const fetchBricksData = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words?limit=20&sort=random&knowledge_base=${config.knowledgeBase}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/words?limit=20&sort=random&knowledge_base=${config.knowledgeBase}`);
         const data = await response.json();
         console.log('fetched data', data)
         setBricks(data.map((word: any) => ({
