@@ -61,8 +61,9 @@ export default function WallBricks() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <div className="max-w-6xl mx-auto">
+    <main className="relative w-screen h-screen overflow-hidden bg-gray-900"> 
+      <div className="min-h-screen bg-gray-100 p-4">
+        <div className="max-w-6xl mx-auto">
         <div className="flex flex-wrap justify-center">
           {bricks.map((brick, index) => (
             <motion.div
@@ -83,9 +84,18 @@ export default function WallBricks() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontSize: `${Math.max(12, Math.min(18, 200 / brick.word.length))}px`,
+                    whiteSpace: 'pre-wrap',
+                    overflowWrap: 'break-word',
+                    textAlign: 'center',
                   }}
                 >
-                  {brick.word}
+                  {brick.word.length > 50 ? (
+                    <>
+                      {brick.word.slice(0, Math.ceil(brick.word.length/2))}<br />{brick.word.slice(Math.ceil(brick.word.length/2))}
+                    </>
+                  ) : (
+                    brick.word
+                  )}
                 </div>
 
               </Link>
@@ -93,14 +103,15 @@ export default function WallBricks() {
           ))}
         </div>
       </div>
-      <Link href="/add-word" passHref>
+      <Link href="/word/edit" passHref>
         <Button
           className="fixed bottom-6 right-6 rounded-full w-16 h-16 shadow-lg bg-blue-500 hover:bg-blue-600 transition-colors duration-200"
           aria-label="Add new word"
         >
           <Plus className="w-8 h-8 text-white" />
         </Button>
-      </Link>
-    </div>
+        </Link>
+      </div>
+    </main>
   )
 }
