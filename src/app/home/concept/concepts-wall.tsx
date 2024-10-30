@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useConfig } from '@/hooks/useConfig'
 
 const aiConcepts = [
+  { id: 1, word: "Orangutan", size: "0.68" },
   { id: 2, word: "Chimpanzee", size: "0.80" },
   { id: 3, word: "African Bush Elephant", size: "0.87" },
   { id: 4, word: "Bengal Tiger", size: "0.80" },
@@ -25,7 +26,6 @@ const aiConcepts = [
   { id: 18, word: "Grizzly Bear", size: "0.51" },
   { id: 19, word: "California Sea Lion", size: "0.84" },
   { id: 20, word: "Snow Leopard", size: "0.90" },
-  { id: 1, word: "Orangutan", size: "0.68" }
 ]
 
 const getRandomPosition = (size: number) => {

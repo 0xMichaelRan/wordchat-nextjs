@@ -7,6 +7,7 @@ import { Menu, X, Search } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useConfig } from '@/hooks/useConfig'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu'
 
 const navItems = [
     { name: 'Home', href: '/' },
