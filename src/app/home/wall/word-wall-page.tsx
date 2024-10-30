@@ -14,23 +14,24 @@ interface Word {
 }
 
 const DEFAULT_WORDS: Word[] = [
-  { id: 1, word: "Machine Learning", size: "0.8" },
-  { id: 2, word: "Neural Networks", size: "0.7" },
-  { id: 3, word: "Deep Learning", size: "0.9" },
-  { id: 5, word: "Data Science", size: "0.75" },
-  { id: 6, word: "Python", size: "0.5" },
-  { id: 7, word: "TensorFlow", size: "0.65" },
-  { id: 8, word: "PyTorch", size: "0.55" },
-  { id: 9, word: "Computer Vision", size: "0.85" },
-  { id: 10, word: "NLP", size: "0.7" },
-  { id: 11, word: "Robotics", size: "0.6" },
-  { id: 12, word: "Reinforcement Learning", size: "0.8" },
-  { id: 13, word: "Statistics", size: "0.5" },
-  { id: 14, word: "Big Data", size: "0.7" },
-  { id: 15, word: "Cloud Computing", size: "0.6" },
-  { id: 16, word: "Ethics in AI", size: "0.75" },
-  { id: 17, word: "Algorithm", size: "0.65" },
-  { id: 18, word: "Data Mining", size: "0.55" },
+  { id: 1, word: "African Bush Elephant", size: "0.8" },
+  { id: 2, word: "Bengal Tiger", size: "0.7" },
+  { id: 3, word: "Mountain Gorilla", size: "0.9" },
+  { id: 5, word: "Emperor Penguin", size: "0.75" },
+  { id: 6, word: "Bottlenose Dolphin", size: "0.5" },
+  { id: 7, word: "Red Kangaroo", size: "0.65" },
+  { id: 8, word: "Giant Panda", size: "0.55" },
+  { id: 9, word: "White Rhinoceros", size: "0.85" },
+  { id: 10, word: "Siberian Tiger", size: "0.7" },
+  { id: 11, word: "Australian Sea Lion", size: "0.6" },
+  { id: 12, word: "Reticulated Giraffe", size: "0.8" },
+  { id: 13, word: "Komodo Dragon", size: "0.5" },
+  { id: 14, word: "Polar Bear", size: "0.7" },
+  { id: 15, word: "Galapagos Tortoise", size: "0.6" },
+  { id: 16, word: "Golden Eagle", size: "0.75" },
+  { id: 17, word: "Grey Wolf", size: "0.65" },
+  { id: 18, word: "Grizzly Bear", size: "0.55" },
+
 ];
 
 export default function WordWall() {
@@ -42,7 +43,7 @@ export default function WordWall() {
     const fetchWords = async () => {
       try {
         setIsLoading(true)
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words?limit=18&sort=most-edited&knowledge_base=${config.knowledgeBase.toLowerCase()}`)
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words?limit=18&sort=most-edited&knowledge_base=${config.knowledgeBase}`)
         if (!response.ok) {
           throw new Error('Failed to fetch words')
         }
@@ -74,28 +75,22 @@ export default function WordWall() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         ) : (
-          <div className="flex flex-wrap gap-4 justify-center">
-            {words.map((word) => {
-              const fontSize = Math.max(14, Math.min(30, parseFloat(word.size) * 30))
-              const minWidth = 120
-              const maxWidth = 300
-                
-              return (
-                <Link
-                  key={word.id}
-                  href={`/word/${word.id}`}
-                  className="bg-accent text-accent-foreground shadow-md flex items-center justify-center text-center transition-all duration-300 ease-in-out hover:scale-105 cursor-pointer"
-                  style={{
-                    width: `${Math.max(fontSize * 6, word.word.length * fontSize * 0.66)}px`,
-                    height: `${fontSize * 3}px`,
-                    fontSize: `${fontSize}px`,
-                    borderRadius: `${fontSize * 0.88}px`,
-                    padding: `${fontSize / 2}px`,
-                  }}
-                >
-                  <span className="break-words">{word.word}</span>
-                </Link>
-              )
+          <div className="flex flex-wrap justify-center items-center gap-4" style={{ minHeight: '70vh' }}>
+          {words.map((word, index) => {
+            const fontSize = Math.max(1, Math.min(3, Math.random() * 2 + 1))
+            return (
+              <Button
+                key={index}
+                variant="outline"
+                className="rounded-lg transition-all hover:bg-primary hover:text-primary-foreground"
+                style={{
+                  fontSize: `${fontSize}rem`,
+                  padding: `${fontSize * 0.5}rem ${fontSize * 0.75}rem`,
+                }}
+              >
+                {word.word}
+              </Button>
+            )
             })}
           </div>
         )}
