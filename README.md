@@ -58,6 +58,7 @@ Currently working on:
 
 To do:
 
+* [1] Process embedding for 1 word, and add buton to the related words section.
 * [1] if nothing found on Pinecone, the embedding might be missing??? handle this.
 * [1] insert details from chat history.
 * [2] Persist chat history to DB.

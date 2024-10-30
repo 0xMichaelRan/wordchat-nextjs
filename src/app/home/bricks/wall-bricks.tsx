@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { useConfig } from '@/hooks/useConfig'
 
 const defaultBricks = [
-  { id: 1, word: "Orangutan", size: "0.68" },
+  { id: 1, word: "Beam Search", size: "0.659" },
   { id: 2, word: "Chimpanzee", size: "0.80" },
   { id: 3, word: "African Bush Elephant", size: "0.87" },
   { id: 4, word: "Bengal Tiger", size: "0.80" },
@@ -45,8 +45,9 @@ export default function WallBricks() {
   useEffect(() => {
     const fetchBricksData = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words?limit=20&sort=most-edited&knowledge_base=${config.knowledgeBase}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words?limit=20&sort=random&knowledge_base=${config.knowledgeBase}`);
         const data = await response.json();
+        console.log('fetched data', data)
         setBricks(data.map((word: any) => ({
           ...word,
           color: getRandomColor(),
@@ -73,17 +74,26 @@ export default function WallBricks() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3, delay: index * 0.05 }}
             >
+              {/* {brick.word === "Beam Search" && (
+                <>
+                  {brick.size}
+                  <Link href={`/word/info/${brick.id}`}>
+                    <p className="text-blue-500 underline ml-2">{brick.word.length}</p>
+                  </Link>
+                </>
+              )} */}
+              
               <Link href={`/word/${brick.id}`}>
                 <div
                   className="brick cursor-pointer text-center p-4 rounded shadow-md transition-transform hover:scale-105"
                   style={{
                     backgroundColor: brick.color,
-                    width: `${Math.max(100, brick.word.length * 12)}px`,
-                    height: `${Number(brick.size) * 100}px`,
+                    width: `${Math.max(100, brick.word.length * 13)}px`, // -- width is purely based on the word length
+                    height: `${Math.max(50, Number(brick.size) * (window.innerWidth > 768 ? 136 : 99))}px`, // -- height is randomized based on screen width (weird?)
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: `${Math.max(12, Math.min(18, 200 / brick.word.length))}px`,
+                    fontSize: `${Math.max(12, Math.min(18, 200 / brick.word.length))}px`, // -- font size is based on char count of the word
                     whiteSpace: 'pre-wrap',
                     overflowWrap: 'break-word',
                     textAlign: 'center',

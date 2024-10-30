@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { Edit, History, MessageSquare, GitMerge, Sparkles, X } from 'lucide-react'
+import { Edit, History, MessageSquare, GitMerge, Sparkles, RefreshCcw, X } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea"
 import axios from 'axios'
 import { motion } from 'framer-motion'
 import { useConfig } from '@/hooks/useConfig'
+import RelatedWordsCard from '@/components/related-words-card'
 
 interface WordData {
   id: number;
@@ -32,7 +33,7 @@ const defaultResponse: WordData = {
   id: 1,
   word: "Machine Learning",
   explain: "A decoding strategy that selects the most probable word at each step in sequence generation.",
-  details: "Move chat button to the same line as last updated timestamp, and remove the word \"Last Updated\", just keep the date and time. Also add a merge button alongside the chat button. Make the border bold and shaded., and add apply tag style border to related words. I'll modify the component to move the chat button to the same line as the timestamp, remove \"Last Updated\", add a merge button, make the border bold and shaded, and apply a tag style border to related words. Here's the updated component.",
+  details: "Move chat button to the same line as last updated timestamp, and remove the word \"Last Updated\", just keep the date and time. Also add a merge button alongside the chat button. Make the border bold and shaded., and add apply tag style border to related words. I'll modify the component to move the chat button to the same line as the timestamp, remove \"Last Updated\", add a merge button, make the border bold and shaded, and apply a tag style border to. Here's the updated component.",
   edit_since_embedding: 4,
   ai_generated: false,
   knowledge_base: "llm",
@@ -40,10 +41,10 @@ const defaultResponse: WordData = {
 };
 
 const defaultRelatedWords = [
-  { related_word_id: 10, correlation: 0.9, related_word: "Beam" },
-  { related_word_id: 2, correlation: 0.98, related_word: "GPT (Generative Pre-trained Transformer)" },
-  { related_word_id: 3, correlation: 0.7, related_word: "Sequence-to-Sequence Model" },
-  { related_word_id: 6, correlation: 0.6, related_word: "Fine-Tuning" },
+  { id: 1, word: "Beam Search", correlation: 0.9, ai_generated: false, knowledge_base: "LLM" },
+  { id: 2, word: "GPT (Generative Pre-trained Transformer)", correlation: 0.98, ai_generated: false, knowledge_base: "LLM" },
+  { id: 3, word: "Sequence-to-Sequence Model", correlation: 0.7, ai_generated: false, knowledge_base: "LLM" },
+  { id: 6, word: "Fine-Tuning", correlation: 0.6, ai_generated: false, knowledge_base: "LLM" },
 ];
 
 const defaultExplainHistory = [
@@ -129,7 +130,7 @@ export default function WordPage() {
         setEditedExplain(fetchedWordData.explain);
         setEditedDetails(fetchedWordData.details || '');
 
-        // Update the related words fetch call
+        // Fetch related words 
         const relatedResponse = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/related/${id}?knowledge_base=${config.knowledgeBase}`
         )
@@ -553,41 +554,12 @@ export default function WordPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xl font-semibold">Related Words</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-3 justify-start">
-            {relatedWords.map(({ id, correlation, word }, index) => (
-              <Button
-                key={`${id}-${index}`}
-                variant="outline"
-                asChild
-                className={`
-                  px-2 py-1 
-                  hover:bg-primary hover:text-primary-foreground 
-                  transition-colors
-                  border rounded-lg
-                `}
-                style={{
-                  fontSize: `${-70 + (correlation * 100)}px`,
-                  padding: `${-6 + (correlation * 18)}px ${8 + (correlation * 8)}px`,
-                  borderWidth: '2px',
-                  opacity: -3.2 + (correlation * 5)
-                }}
-              >
-                <Link
-                  href={`/word/${id}`}
-                  className="transition-all duration-200"
-                >
-                  {word} ({correlation.toFixed(2)})
-                </Link>
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <RelatedWordsCard
+        relatedWords={relatedWords}
+        wordData={wordData}
+        isGenerating={isGenerating}
+        handleGenerateExplain={handleGenerateExplain}
+      />
     </main>
   )
 }
