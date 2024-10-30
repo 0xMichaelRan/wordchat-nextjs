@@ -6,15 +6,9 @@ import ExplainHistoryCard from '@/components/explain_history_card'
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { Edit, History, MessageSquare, GitMerge, Sparkles, RefreshCcw, X } from 'lucide-react'
+import { Edit, MessageSquare, GitMerge, Sparkles, X } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Textarea } from "@/components/ui/textarea"
 import axios from 'axios'
 import { motion } from 'framer-motion'
@@ -108,14 +102,6 @@ export default function WordPage() {
         setEditedExplain(fetchedWordData.explain);
         setEditedDetails(fetchedWordData.details || '');
 
-        const historyResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}/history?knowledge_base=${config.knowledgeBase}`)
-        if (!historyResponse.ok) {
-          throw new Error('Fetch explain history failed')
-        }
-        const fetchedHistoryData = await historyResponse.json()
-        console.log("fetchedHistoryData", fetchedHistoryData)
-        setExplainHistory(fetchedHistoryData)
-
         // Check if explain is empty and generate if needed
         if (fetchedWordData.explain === "") {
           console.log("Explain is empty, generating explain for", fetchedWordData.word)
@@ -127,7 +113,6 @@ export default function WordPage() {
         setWordData(defaultResponse);
         setEditedExplain(defaultResponse.explain);
         setEditedDetails(defaultResponse.details || '');
-        setExplainHistory(defaultExplainHistory);
       } finally {
         setLoading(false);
       }

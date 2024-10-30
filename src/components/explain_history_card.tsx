@@ -7,6 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { History } from 'lucide-react';
+import { useConfig } from '@/hooks/useConfig';
 
 interface ExplainHistoryCardProps {
   wordId: number;
@@ -28,13 +29,14 @@ const defaultExplainHistory = [
 ];
 
 const ExplainHistoryCard: React.FC<ExplainHistoryCardProps> = ({ wordId }) => {
+    const { config } = useConfig();
   const [explainHistory, setExplainHistory] = useState<{ old_explain: string; changed_at: string }[]>(defaultExplainHistory);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchExplainHistory = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${wordId}/history`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${wordId}/history?knowledge_base=${config.knowledgeBase}`)
         if (!response.ok) {
           throw new Error('Fetch explain history failed');
         }
