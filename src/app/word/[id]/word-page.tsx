@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { ChevronDown, ChevronUp, Edit, History, MessageSquare, GitMerge, Sparkles, X, Scissors } from 'lucide-react'
+import { Edit, History, MessageSquare, GitMerge, Sparkles, X } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -15,26 +15,33 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import axios from 'axios'
 import { motion } from 'framer-motion'
+import { useConfig } from '@/hooks/useConfig'
 
 interface WordData {
   id: number;
   word: string;
   explain: string;
   details: string;
+  edit_since_embedding: number;
+  ai_generated: boolean;
+  knowledge_base: string;
   created_at: string;
 }
 
 const defaultResponse: WordData = {
-  id: 12,
-  word: "Greedy Decoding",
+  id: 1,
+  word: "Machine Learning",
   explain: "A decoding strategy that selects the most probable word at each step in sequence generation.",
   details: "Move chat button to the same line as last updated timestamp, and remove the word \"Last Updated\", just keep the date and time. Also add a merge button alongside the chat button. Make the border bold and shaded., and add apply tag style border to related words. I'll modify the component to move the chat button to the same line as the timestamp, remove \"Last Updated\", add a merge button, make the border bold and shaded, and apply a tag style border to related words. Here's the updated component.",
-  created_at: "2024-06-25 22:40:19",
+  edit_since_embedding: 4,
+  ai_generated: false,
+  knowledge_base: "llm",
+  created_at: "2024-10-29T11:10:31.940Z",
 };
 
 const defaultRelatedWords = [
   { related_word_id: 10, correlation: 0.9, related_word: "Beam" },
-  { related_word_id: 2, correlation: 0.8, related_word: "GPT (Generative Pre-trained Transformer)" },
+  { related_word_id: 2, correlation: 0.98, related_word: "GPT (Generative Pre-trained Transformer)" },
   { related_word_id: 3, correlation: 0.7, related_word: "Sequence-to-Sequence Model" },
   { related_word_id: 6, correlation: 0.6, related_word: "Fine-Tuning" },
 ];
@@ -43,13 +50,13 @@ const defaultExplainHistory = [
   {
     id: null,
     word_id: 1,
-    old_explain: "Initial explanation for word 3",
+    old_explain: "The process of selecting the most probable word at each step in sequence generation.",
     changed_at: "2023-10-03 12:00:00",
   },
   {
     id: null,
     word_id: 1,
-    old_explain: "Initial explanation for word 3",
+    old_explain: "When a model selects the most probable word at each step in sequence generation.",
     changed_at: "2023-10-03 12:00:00",
   },
 ];
@@ -64,6 +71,7 @@ function shuffleArray<T>(array: T[]): T[] {
 
 export default function WordPage() {
   const { id } = useParams()
+  const { config, saveConfig } = useConfig()
   const [wordData, setWordData] = useState<WordData | null>(null)
   const [relatedWords, setRelatedWords] = useState<{ related_word_id: number; correlation: number; related_word: string }[]>([])
   const [explainHistory, setExplainHistory] = useState<{ id: number | null; word_id: number; old_explain: string; changed_at: string }[]>([])
@@ -119,18 +127,20 @@ export default function WordPage() {
 
       // Get a normal word
       try {
-        const wordResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}`)
+        const wordResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}?knowledge_base=${config.knowledgeBase.toLowerCase()}`);
         if (!wordResponse.ok) {
-          throw new Error('Fetch failed')
+          throw new Error('Fetch failed');
         }
-        const fetchedWordData = await wordResponse.json()
-        console.log("fetchedWordData", fetchedWordData)
-        setWordData(fetchedWordData)
-        setEditedExplain(fetchedWordData.explain)
-        setEditedDetails(fetchedWordData.details || '')
+        const fetchedWordData: WordData = await wordResponse.json();
+        console.log("fetchedWordData", fetchedWordData);
+        setWordData(fetchedWordData);
+        setEditedExplain(fetchedWordData.explain);
+        setEditedDetails(fetchedWordData.details || '');
 
         // Update the related words fetch call
-        const relatedResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/related/query-by-id?id=${id}`)
+        const relatedResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/related/${id}?knowledge_base=${config.knowledgeBase.toLowerCase()}`
+        )
         if (!relatedResponse.ok) {
           throw new Error('Fetch related words failed')
         }
@@ -147,7 +157,7 @@ export default function WordPage() {
           )
         );
 
-        const historyResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}/history`)
+        const historyResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}/history?knowledge_base=${config.knowledgeBase.toLowerCase()}`)
         if (!historyResponse.ok) {
           throw new Error('Fetch explain history failed')
         }
@@ -162,16 +172,17 @@ export default function WordPage() {
         }
 
       } catch (error) {
-        console.error('Error fetching data:', error)
-        setWordData(defaultResponse)
-        setEditedExplain(defaultResponse.explain)
-        setEditedDetails(defaultResponse.details || ''); // Use empty string if details is null
-        setRelatedWords(defaultRelatedWords)
-        setExplainHistory(defaultExplainHistory)
+        console.error('Error fetching data:', error);
+        setWordData(defaultResponse);
+        setEditedExplain(defaultResponse.explain);
+        setEditedDetails(defaultResponse.details || '');
+        setRelatedWords(defaultRelatedWords);
+        setExplainHistory(defaultExplainHistory);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
+
     fetchData();
 
     // React 18 Strict Mode Behavior:
@@ -188,12 +199,12 @@ export default function WordPage() {
   // Update word data
   const updateWordData = async (updatedData: Partial<WordData>) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}?knowledge_base=${config.knowledgeBase.toLowerCase()}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updatedData),
+        body: JSON.stringify({ ...updatedData, knowledge_base: config.knowledgeBase.toLowerCase() }),
       });
 
       if (!response.ok) {
@@ -204,7 +215,7 @@ export default function WordPage() {
       setWordData(data);
 
       // Fetch explain history again
-      const historyResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}/history`);
+      const historyResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}/history?knowledge_base=${config.knowledgeBase.toLowerCase()}`);
       if (!historyResponse.ok) {
         throw new Error('Fetch explain history failed');
       }
@@ -252,7 +263,7 @@ export default function WordPage() {
         detailsTextareaRef.current.style.height = 'auto';
         detailsTextareaRef.current.style.height = `${detailsTextareaRef.current.scrollHeight}px`;
       }
-    }, 0); 
+    }, 0);
   };
 
   // Save details
@@ -300,8 +311,8 @@ export default function WordPage() {
         updateWordData({ explain: generatedExplain });
       }
     } catch (error) {
-      console.error('Error generating explanation:', error);
-      setError('Failed to generate explanation');
+      console.error('Error generating explain:', error);
+      setError('Failed to generate explain');
     } finally {
       setIsGenerating(false);
     }
@@ -436,7 +447,7 @@ export default function WordPage() {
                   className={`
                     mt-4 
                     px-4 py-6 
-                    min-h-[80px] 
+                    min-h-[80px]
                     border-2 border-primary 
                     rounded-lg 
                     cursor-pointer 
@@ -452,13 +463,13 @@ export default function WordPage() {
               )}
             </div>
           )}
-          <div className="flex justify-between items-center">
+          <div className="flex justify-end items-center">
             <div className="flex gap-2 items-center">
               <Button
                 variant="outline"
                 size="icon"
                 onClick={handleEditExplain}
-                title={isEditingExplain ? "Cancel editing" : "Edit explanation"}
+                title={isEditingExplain ? "Cancel editing" : "Edit explain"}
               >
                 {isEditingExplain ? (
                   <X className="h-4 w-4" />
@@ -474,7 +485,7 @@ export default function WordPage() {
                 size="icon"
                 onClick={() => wordData && handleGenerateExplain(wordData.word)}
                 disabled={isGenerating}
-                title={isGenerating ? "Generating..." : "Generate AI explanation"}
+                title={isGenerating ? "Generating..." : "Generate AI explain"}
               >
                 <Sparkles className="h-4 w-4" />
                 <span className="sr-only">Generate explain</span>
@@ -588,7 +599,7 @@ export default function WordPage() {
                     key={`${related_word_id}-${index}`}
                     className="transition-all duration-200"
                   >
-                    {related_word} ({correlation.toFixed(2)})
+                    {related_word} ({correlation !== undefined ? correlation.toFixed(2) : 'N/A'})
                   </Link>
                 </Button>
               ))}

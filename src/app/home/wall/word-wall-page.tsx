@@ -42,7 +42,7 @@ export default function WordWall() {
     const fetchWords = async () => {
       try {
         setIsLoading(true)
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words?limit=20&sort=most-edited`)
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words?limit=18&sort=most-edited&knowledge_base=${config.knowledgeBase.toLowerCase()}`)
         if (!response.ok) {
           throw new Error('Failed to fetch words')
         }

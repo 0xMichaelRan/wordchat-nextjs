@@ -49,13 +49,16 @@ Done:
 * [1] Remove empty explain from history SQL query
 * [1] Add search, add and config button to navbar
 * [2] Do not query Pinecone directly, but use DB as cache
+* [1] change 'pinecone_status' to 'edit_since_embedding'
+
+Currently working on:
+
+* [2] support multiple knowledge bases.
 
 To do:
 
 * [1] if nothing found on Pinecone, the embedding might be missing??? handle this.
-* [2] support multiple knowledge bases.
 * [1] insert details from chat history.
 * [2] Persist chat history to DB.
 * [3] Support both word and abbreviation in the DB.
-* [1] change 'pinecone_status' to 'edit_since_embedding'
 * [2] insert word from chat page
