@@ -5,8 +5,9 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Plus } from 'lucide-react'
 import { Button } from "@/components/ui/button"
+import { useConfig } from '@/hooks/useConfig'
 
-const aiConcepts = [
+const defaultBricks = [
   { id: 1, word: "Orangutan", size: "0.68" },
   { id: 2, word: "Chimpanzee", size: "0.80" },
   { id: 3, word: "African Bush Elephant", size: "0.87" },
@@ -35,19 +36,28 @@ const getRandomColor = () => {
 }
 
 export default function WallBricks() {
-  const [bricks, setBricks] = useState(aiConcepts.map(concept => ({
+  const { config, saveConfig } = useConfig()
+  const [bricks, setBricks] = useState(defaultBricks.map(concept => ({
     ...concept,
     color: getRandomColor(),
   })))
 
   useEffect(() => {
-    const handleResize = () => {
-      // Trigger re-render on resize to adjust brick layout
-      setBricks(prevBricks => [...prevBricks])
-    }
+    const fetchBricksData = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words?limit=20&sort=most-edited&knowledge_base=${config.knowledgeBase}`);
+        const data = await response.json();
+        setBricks(data.map((word: any) => ({
+          ...word,
+          color: getRandomColor(),
+        })));
+      } catch (error) {
+        console.error('Error fetching wall bricks data:', error);
+        // If fetch fails, the default bricks will remain
+      }
+    };
 
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
+    fetchBricksData();
   }, [])
 
   return (
@@ -77,6 +87,7 @@ export default function WallBricks() {
                 >
                   {brick.word}
                 </div>
+
               </Link>
             </motion.div>
           ))}

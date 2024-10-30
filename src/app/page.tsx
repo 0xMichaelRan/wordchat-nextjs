@@ -1,8 +1,8 @@
-import ConceptsWall from "./home/concept/concepts-wall";
+import WallBricks from "./home/bricks/wall-bricks";
 
 export default function Home() {
     return (
-      <ConceptsWall />
+      <WallBricks />
     );
   }
   
