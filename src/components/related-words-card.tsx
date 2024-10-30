@@ -1,17 +1,43 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from 'next/link';
 import { RefreshCcw } from 'lucide-react';
+import { useConfig } from '@/hooks/useConfig';
 
 interface RelatedWordsCardProps {
-  relatedWords: { id: number; correlation: number; word: string }[];
-  wordData: { word: string } | null;
-  isGenerating: boolean;
-  handleGenerateExplain: (word: string) => void;
+  wordId: number;
 }
 
-const RelatedWordsCard: React.FC<RelatedWordsCardProps> = ({ relatedWords, wordData, isGenerating, handleGenerateExplain }) => {
+const defaultRelatedWords = [
+  { id: 1, word: "Beam Search", correlation: 0.9, ai_generated: false, knowledge_base: "LLM" },
+  { id: 2, word: "GPT (Generative Pre-trained Transformer)", correlation: 0.98, ai_generated: false, knowledge_base: "LLM" },
+  { id: 3, word: "Sequence-to-Sequence Model", correlation: 0.7, ai_generated: false, knowledge_base: "LLM" },
+  { id: 6, word: "Fine-Tuning", correlation: 0.6, ai_generated: false, knowledge_base: "LLM" },
+];
+
+const RelatedWordsCard: React.FC<RelatedWordsCardProps> = ({ wordId }) => {
+  const { config } = useConfig();
+  const [relatedWords, setRelatedWords] = useState<{ id: number; correlation: number; word: string }[]>(defaultRelatedWords);
+  const [isRedoingEmbedding, setIsRedoingEmbedding] = useState(false);
+
+  useEffect(() => {
+    const fetchRelatedWords = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/related/${wordId}?knowledge_base=${config.knowledgeBase}`);
+        if (!response.ok) {
+          throw new Error('Fetch related words failed');
+        }
+        const data = await response.json();
+        setRelatedWords(data);
+      } catch (error) {
+        console.error('Error fetching related words:', error);
+      }
+    };
+
+    fetchRelatedWords();
+  }, [wordId, config.knowledgeBase]);
+
   return (
     <Card>
       <CardHeader>
@@ -19,9 +45,9 @@ const RelatedWordsCard: React.FC<RelatedWordsCardProps> = ({ relatedWords, wordD
       </CardHeader>
       <CardContent>
         <div className="flex flex-wrap gap-3 justify-start">
-          {relatedWords.map(({ id, correlation, word }, index) => (
+          {relatedWords.map(({ id, correlation, word }) => (
             <Button
-              key={`${id}-${index}`}
+              key={id}
               variant="outline"
               asChild
               className={`
@@ -48,9 +74,9 @@ const RelatedWordsCard: React.FC<RelatedWordsCardProps> = ({ relatedWords, wordD
           <Button
             variant="outline"
             size="icon"
-            onClick={() => wordData && handleGenerateExplain(wordData.word)}
-            disabled={isGenerating}
-            title={isGenerating ? "Generating..." : "Generate AI explain"}
+            onClick={() => {}} // Adjust as needed
+            disabled={isRedoingEmbedding}
+            title={isRedoingEmbedding ? "Redoing Embedding..." : "Redo Embedding"}
           >
             <RefreshCcw className="h-4 w-4" />
             <span className="sr-only">Generate explain</span>

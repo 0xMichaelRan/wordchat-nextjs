@@ -1,5 +1,7 @@
 'use client'
 
+import RelatedWordsCard from '@/components/related-words-card'
+
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -16,7 +18,6 @@ import { Textarea } from "@/components/ui/textarea"
 import axios from 'axios'
 import { motion } from 'framer-motion'
 import { useConfig } from '@/hooks/useConfig'
-import RelatedWordsCard from '@/components/related-words-card'
 
 interface WordData {
   id: number;
@@ -40,13 +41,6 @@ const defaultResponse: WordData = {
   created_at: "2024-10-29T11:10:31.940Z",
 };
 
-const defaultRelatedWords = [
-  { id: 1, word: "Beam Search", correlation: 0.9, ai_generated: false, knowledge_base: "LLM" },
-  { id: 2, word: "GPT (Generative Pre-trained Transformer)", correlation: 0.98, ai_generated: false, knowledge_base: "LLM" },
-  { id: 3, word: "Sequence-to-Sequence Model", correlation: 0.7, ai_generated: false, knowledge_base: "LLM" },
-  { id: 6, word: "Fine-Tuning", correlation: 0.6, ai_generated: false, knowledge_base: "LLM" },
-];
-
 const defaultExplainHistory = [
   {
     id: null,
@@ -66,7 +60,6 @@ export default function WordPage() {
   const { id } = useParams()
   const { config, saveConfig } = useConfig()
   const [wordData, setWordData] = useState<WordData | null>(null)
-  const [relatedWords, setRelatedWords] = useState<{ id: number; correlation: number; word: string }[]>([])
   const [explainHistory, setExplainHistory] = useState<{ id: number | null; word_id: number; old_explain: string; changed_at: string }[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -130,17 +123,6 @@ export default function WordPage() {
         setEditedExplain(fetchedWordData.explain);
         setEditedDetails(fetchedWordData.details || '');
 
-        // Fetch related words 
-        const relatedResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/related/${id}?knowledge_base=${config.knowledgeBase}`
-        )
-        if (!relatedResponse.ok) {
-          throw new Error('Fetch related words failed')
-        }
-        const fetchedRelatedData = await relatedResponse.json()
-        console.log("fetchedRelatedData", fetchedRelatedData)
-        setRelatedWords(fetchedRelatedData)
-        
         const historyResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}/history?knowledge_base=${config.knowledgeBase}`)
         if (!historyResponse.ok) {
           throw new Error('Fetch explain history failed')
@@ -160,7 +142,6 @@ export default function WordPage() {
         setWordData(defaultResponse);
         setEditedExplain(defaultResponse.explain);
         setEditedDetails(defaultResponse.details || '');
-        setRelatedWords(defaultRelatedWords);
         setExplainHistory(defaultExplainHistory);
       } finally {
         setLoading(false);
@@ -555,10 +536,7 @@ export default function WordPage() {
       </Card>
 
       <RelatedWordsCard
-        relatedWords={relatedWords}
-        wordData={wordData}
-        isGenerating={isGenerating}
-        handleGenerateExplain={handleGenerateExplain}
+        wordId={wordData.id}
       />
     </main>
   )
