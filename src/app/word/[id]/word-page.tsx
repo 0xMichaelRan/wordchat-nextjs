@@ -1,6 +1,7 @@
 'use client'
 
 import RelatedWordsCard from '@/components/related-words-card'
+import ExplainHistoryCard from '@/components/explain_history_card'
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
@@ -41,26 +42,10 @@ const defaultResponse: WordData = {
   created_at: "2024-10-29T11:10:31.940Z",
 };
 
-const defaultExplainHistory = [
-  {
-    id: null,
-    word_id: 1,
-    old_explain: "The process of selecting the most probable word at each step in sequence generation.",
-    changed_at: "2023-10-03 12:00:00",
-  },
-  {
-    id: null,
-    word_id: 1,
-    old_explain: "When a model selects the most probable word at each step in sequence generation.",
-    changed_at: "2023-10-03 12:00:00",
-  },
-];
-
 export default function WordPage() {
   const { id } = useParams()
   const { config, saveConfig } = useConfig()
   const [wordData, setWordData] = useState<WordData | null>(null)
-  const [explainHistory, setExplainHistory] = useState<{ id: number | null; word_id: number; old_explain: string; changed_at: string }[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -178,14 +163,6 @@ export default function WordPage() {
 
       const data = await response.json();
       setWordData(data);
-
-      // Fetch explain history again
-      const historyResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/words/${id}/history?knowledge_base=${config.knowledgeBase}`);
-      if (!historyResponse.ok) {
-        throw new Error('Fetch explain history failed');
-      }
-      const historyData = await historyResponse.json();
-      setExplainHistory(historyData);
 
     } catch (error) {
       console.error('Error updating word data:', error);
@@ -455,26 +432,7 @@ export default function WordPage() {
                 <Sparkles className="h-4 w-4" />
                 <span className="sr-only">Generate explain</span>
               </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    title="View History"
-                  >
-                    <History className="h-4 w-4" />
-                    <span className="sr-only">View explain history</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-[300px]">
-                  {explainHistory.map((explain, index) => (
-                    <DropdownMenuItem key={index} className="flex flex-col items-start">
-                      <span className="font-medium">{explain.old_explain}</span>
-                      <span className="text-sm text-muted-foreground">{explain.changed_at}</span>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <ExplainHistoryCard wordId={wordData.id} />
             </div>
           </div>
           <div id="word-details" className="mt-4">
