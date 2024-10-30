@@ -58,6 +58,8 @@ export default function WordPage() {
   const [splitMode, setSplitMode] = useState(false);
   const [selectedWords, setSelectedWords] = useState<string[]>([]);
 
+  const [refreshKey, setRefreshKey] = useState(0);
+
   // Function to handle word selection
   const handleSplitWordSelect = (word: string) => {
     setSelectedWords(prev =>
@@ -148,6 +150,7 @@ export default function WordPage() {
 
       const data = await response.json();
       setWordData(data);
+      setRefreshKey(prevKey => prevKey + 1); // Increment refreshKey to trigger refresh
 
     } catch (error) {
       console.error('Error updating word data:', error);
@@ -417,7 +420,7 @@ export default function WordPage() {
                 <Sparkles className="h-4 w-4" />
                 <span className="sr-only">Generate explain</span>
               </Button>
-              <ExplainHistoryCard wordId={wordData.id} />
+              <ExplainHistoryCard wordId={wordData.id} refreshKey={refreshKey}/>
             </div>
           </div>
           <div id="word-details" className="mt-4">

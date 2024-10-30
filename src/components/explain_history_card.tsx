@@ -11,6 +11,7 @@ import { useConfig } from '@/hooks/useConfig';
 
 interface ExplainHistoryCardProps {
   wordId: number;
+  refreshKey: number;
 }
 
 const defaultExplainHistory = [
@@ -28,7 +29,7 @@ const defaultExplainHistory = [
     },
 ];
 
-const ExplainHistoryCard: React.FC<ExplainHistoryCardProps> = ({ wordId }) => {
+const ExplainHistoryCard: React.FC<ExplainHistoryCardProps> = ({ wordId, refreshKey }) => {
     const { config } = useConfig();
   const [explainHistory, setExplainHistory] = useState<{ old_explain: string; changed_at: string }[]>(defaultExplainHistory);
   const [error, setError] = useState<string | null>(null);
@@ -49,7 +50,7 @@ const ExplainHistoryCard: React.FC<ExplainHistoryCardProps> = ({ wordId }) => {
     };
 
     fetchExplainHistory();
-  }, [wordId]);
+  }, [wordId, refreshKey]);
 
   if (error) {
     return <div>Error: {error}</div>;
