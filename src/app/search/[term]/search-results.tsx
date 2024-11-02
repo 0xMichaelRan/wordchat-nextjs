@@ -15,6 +15,7 @@ import {
   Card,
   CardContent,
 } from "@/components/ui/card"
+import Link from 'next/link'
 
 // Mock data for demonstration
 const mockResults = [
@@ -109,11 +110,13 @@ export default function SearchResults() {
 
         <div className="space-y-4">
           {results.map((result) => (
-            <Card key={result.id}>
-              <CardContent className="p-4">
-                <h3 className="text-xl font-bold mb-2">{result.word}</h3>
-                <p className="text-gray-600">{result.explanation}</p>
-              </CardContent>
+            <Card>
+              <Link href={`/word/${result.id}`} key={result.id}>
+                <CardContent className="p-4">
+                  <h3 className="text-xl font-bold mb-2">{result.word}</h3>
+                  <p className="text-gray-600">{result.explanation}</p>
+                </CardContent>
+              </Link>
             </Card>
           ))}
         </div>

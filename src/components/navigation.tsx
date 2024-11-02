@@ -27,7 +27,7 @@ export function Navigation() {
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault()
         if (searchTerm.trim()) {
-            router.push(`/chat/${encodeURIComponent(searchTerm.trim())}`)
+            router.push(`/search/${encodeURIComponent(searchTerm.trim())}`)
             setSearchTerm('')
             setIsSearchVisible(false)
         }
