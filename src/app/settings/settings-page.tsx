@@ -25,7 +25,7 @@ const API_ENDPOINTS = [
 
 const DEFAULT_MODELS = ["gpt-3.5-turbo", "gpt-4", "text-davinci-003"]
 
-export default function ConfigPage() {
+export default function SettingsPage() {
   const { config, saveConfig } = useConfig()
   const [models, setModels] = useState(DEFAULT_MODELS)
   const [isLoading, setIsLoading] = useState(false)
