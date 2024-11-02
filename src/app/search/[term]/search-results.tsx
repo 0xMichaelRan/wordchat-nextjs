@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
 import { Search } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -46,27 +47,37 @@ const knowledgeBases = ["All", "Machine Learning", "Optimization", "Deep Learnin
 const timeRanges = ["All Time", "Recent", "This Week", "This Month", "This Year"]
 
 export default function SearchResults() {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedKnowledgeBase, setSelectedKnowledgeBase] = useState('All')
-  const [selectedTimeRange, setSelectedTimeRange] = useState('All Time')
-  const [results, setResults] = useState(mockResults)
+  const { term } = useParams();
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedKnowledgeBase, setSelectedKnowledgeBase] = useState('All');
+  const [selectedTimeRange, setSelectedTimeRange] = useState('All Time');
+  const [results, setResults] = useState(mockResults);
+
+  useEffect(() => {
+    if (term) {
+      setSearchTerm(term as string);
+    }
+  }, [term]);
 
   const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // Filter results based on search term, knowledge base, and edit time
     const filtered = mockResults.filter(result => 
       (result.word.toLowerCase().includes(searchTerm.toLowerCase()) ||
        result.explanation.toLowerCase().includes(searchTerm.toLowerCase())) &&
       (selectedKnowledgeBase === 'All' || result.knowledgeBase === selectedKnowledgeBase) &&
       (selectedTimeRange === 'All Time' || result.editTime === selectedTimeRange)
-    )
-    setResults(filtered)
-  }
+    );
+    setResults(filtered);
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
       <main className="max-w-4xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-center mb-8">AI Concepts Search</h1>
+        <h1 className="text-3xl font-bold text-center mb-8">
+          Search {searchTerm ? `for "${searchTerm}"` : ''}
+        </h1>
         
         <form onSubmit={handleSearch} className="space-y-4 mb-8">
           <div className="flex items-center space-x-2">
@@ -110,8 +121,8 @@ export default function SearchResults() {
 
         <div className="space-y-4">
           {results.map((result) => (
-            <Card>
-              <Link href={`/word/${result.id}`} key={result.id}>
+            <Card key={result.id}>
+              <Link href={`/word/${result.id}`}>
                 <CardContent className="p-4">
                   <h3 className="text-xl font-bold mb-2">{result.word}</h3>
                   <p className="text-gray-600">{result.explanation}</p>
@@ -125,5 +136,5 @@ export default function SearchResults() {
         )}
       </main>
     </div>
-  )
+  );
 }
